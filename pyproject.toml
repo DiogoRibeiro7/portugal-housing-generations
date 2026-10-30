@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "housing-pt"
+version = "1.0.0"
+description = "Reproducible descriptive assessment of Portugal's housing market, 2008–2025: prices, incomes, construction and rents from pinned official data."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "Diogo Ribeiro", email = "dfr@esmad.ipp.pt" }]
+keywords = ["housing affordability", "house prices", "rents", "Portugal", "official statistics", "reproducibility"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+]
+# The analysis uses the standard library only.
+dependencies = []
+
+[project.optional-dependencies]
+figures = ["matplotlib==3.11.2"]
+dev = ["mypy", "ruff"]
+
+[project.urls]
+Repository = "https://github.com/DiogoRibeiro7/portugal-housing-generations"
+Report = "https://github.com/DiogoRibeiro7/portugal-housing-generations/blob/main/docs/report.md"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 170
+src = ["src", "tests"]
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+mypy_path = "src"
+explicit_package_bases = true
+ignore_missing_imports = true
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]

@@ -11,7 +11,7 @@
       "affiliation": "Faculdade de Media Artes e Design, Universidade Técnica do Porto"
     }
   ],
-  "description": "<p>Research release v1.0.0: a reproducible descriptive assessment of house prices, incomes, construction, population and rents in Portugal, its 9 NUTS 2 and 26 NUTS 3 regions and 308 municipalities, 2008–2025.</p><p>The archive contains the research report (REPORT.md), pinned source files from official statistics with SHA-256 checksums, standard-library Python code, unit and reproduction tests, generated results and 21 figures. Running <code>python reproduce.py</code> verifies the checksums, runs the tests and rebuilds every result byte for byte.</p><p>The report separates established descriptive findings, descriptive associations and unresolved causal hypotheses. None of its associations is causal.</p><p>Licences: original code and documentation are under the Apache License 2.0. Third-party data are not relicensed: INE data are reused under CC BY 4.0, and Eurostat and ECB data under their providers' reuse terms, with the attributions listed file by file in DATA_SOURCES.csv and DATA_SOURCES.md.</p>",
+  "description": "<p>Research release v1.0.0: a reproducible descriptive assessment of house prices, incomes, construction, population and rents in Portugal, its 9 NUTS 2 and 26 NUTS 3 regions and 308 municipalities, 2008–2025.</p><p>The archive contains the research report (docs/report.md), pinned source files from official statistics with SHA-256 checksums, standard-library Python code, unit and reproduction tests, generated results and 21 figures. Running <code>python reproduce.py</code> verifies the checksums, runs the tests and rebuilds every result byte for byte.</p><p>The report separates established descriptive findings, descriptive associations and unresolved causal hypotheses. None of its associations is causal.</p><p>Licences: original code and documentation are under the Apache License 2.0. Third-party data are not relicensed: INE data are reused under CC BY 4.0, and Eurostat and ECB data under their providers' reuse terms, with the attributions listed file by file in docs/data-sources.csv and docs/data-sources.md.</p>",
   "access_right": "open",
   "license": "Apache-2.0",
   "keywords": [
@@ -33,5 +33,5 @@
       "scheme": "url"
     }
   ],
-  "notes": "Archived by Zenodo's GitHub integration from the GitHub release portugal-housing-generations-v1.0.0, which the release task of .github/workflows/portugal-housing-generations.yml creates after reproducing every result and checking that every data file may be redistributed (DATA_SOURCES.md). Run python reproduce.py to verify the checksums and rebuild the results."
+  "notes": "Archived by Zenodo's GitHub integration from the GitHub release portugal-housing-generations-v1.0.0, which the release task of .github/workflows/portugal-housing-generations.yml creates after reproducing every result and checking that every data file may be redistributed (docs/data-sources.md). Run python reproduce.py to verify the checksums and rebuild the results."
 }

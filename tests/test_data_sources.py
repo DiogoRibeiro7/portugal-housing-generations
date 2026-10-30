@@ -1,0 +1,84 @@
+"""The data inventory lists every pinned file with its provider terms, and blocks unlicensed files from archives."""
+
+from __future__ import annotations
+
+import csv
+import re
+import unittest
+
+import reproduce
+
+from housing_pt.paths import DOCS, ROOT
+from housing_pt.sources import data_sources as D
+
+WORKFLOW = ROOT / ".github" / "workflows" / "portugal-housing-generations.yml"
+
+
+class InventoryTests(unittest.TestCase):
+    def test_committed_inventory_matches_the_retrieval_records(self) -> None:
+        with D.OUT.open(encoding="utf-8", newline="") as fh:
+            committed = list(csv.DictReader(fh))
+        self.assertEqual(committed, D.inventory())
+
+    def test_every_pinned_file_is_listed_once(self) -> None:
+        listed = [r["file"] for r in D.inventory()]
+        self.assertEqual(len(listed), len(set(listed)))
+        data_files = {name for name in reproduce.read_manifest() if not name.endswith(".meta.json")}
+        self.assertEqual(set(listed), data_files)
+        for name in reproduce.read_manifest():
+            if name.endswith(".meta.json"):
+                with self.subTest(record=name):
+                    self.assertTrue(any(name.startswith(f.rsplit(".", 1)[0]) for f in listed))
+
+    def test_every_row_names_a_source_terms_and_attribution(self) -> None:
+        for row in D.inventory():
+            with self.subTest(file=row["file"]):
+                for field in ("provider", "dataset", "title", "source_url", "retrieved_utc", "terms", "attribution"):
+                    self.assertTrue(row[field].strip(), field)
+                self.assertTrue(row["source_url"].startswith("https://"))
+                self.assertIn(row["redistribution"], {D.PERMITTED, D.NOT_ESTABLISHED})
+
+    def test_provider_terms(self) -> None:
+        rows = D.inventory()
+        for row in rows:
+            with self.subTest(file=row["file"]):
+                if row["provider"] == "INE":
+                    self.assertIn("CC BY 4.0", row["terms"])
+                    self.assertIn("Instituto Nacional de Estatística", row["attribution"])
+                    self.assertRegex(row["dataset"], r"^\d{7}$")
+                elif row["provider"] == "Eurostat":
+                    self.assertEqual(row["doi"], f"https://doi.org/10.2908/{row['dataset'].upper()}")
+                    self.assertIn("/data/" + row["dataset"] + "?", row["source_url"])
+                elif row["provider"] == "ECB":
+                    self.assertIn("quoted", row["terms"])
+                    self.assertTrue(row["source_url"].startswith("https://data-api.ecb.europa.eu/"))
+        self.assertEqual({r["provider"] for r in rows}, {"INE", "Eurostat", "ECB"})
+
+    def test_every_file_may_be_redistributed(self) -> None:
+        self.assertEqual(D.blocked(D.inventory()), [])
+        self.assertFalse(any("pordata" in name for name in reproduce.read_manifest()))
+
+    @unittest.skipUnless(WORKFLOW.exists(), "workflow not present in this copy")
+    def test_release_task_checks_redistribution_first(self) -> None:
+        workflow = WORKFLOW.read_text(encoding="utf-8")
+        job = workflow.split("\n  package:\n", 1)[1]
+        check = job.index("python -m housing_pt.sources.data_sources --check-redistribution")
+        self.assertLess(job.index("python reproduce.py"), check)
+        self.assertLess(check, job.index("git archive"))
+        self.assertLess(job.index("Check the approved SHA-256"), job.index("git tag -a"))
+        self.assertLess(job.index("git tag -a"), job.index("gh release create"))
+
+    def test_documents_describe_the_sources_and_the_replaced_transcription(self) -> None:
+        doc = (DOCS / "data-sources.md").read_text(encoding="utf-8")
+        for snippet in ("INE replaces the PORDATA transcription", "https://www.ine.pt/xurl/indx/0000076/PT",
+                        "https://www.ine.pt/xurl/indx/0011725/PT", "equal the PORDATA transcription in all 31 years",
+                        "https://www.pordata.pt/Termos+Legais", "https://ec.europa.eu/eurostat/help/copyright-notice",
+                        "usage_policy.en.html", "INST=3585857"):
+            with self.subTest(snippet=snippet):
+                self.assertIn(snippet, doc)
+        notes = re.sub(r"\s+", " ", (DOCS / "release" / "notes-v1.0.0.md").read_text(encoding="utf-8"))
+        self.assertIn("replaced by INE indicator 0000076", notes)
+        self.assertNotRegex(notes, r"PORDATA.*not been established|This blocks the Zenodo deposit")
+
+if __name__ == "__main__":
+    unittest.main()
