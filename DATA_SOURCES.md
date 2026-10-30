@@ -31,7 +31,7 @@ before any new deposit.
 Earlier versions used `ine_pordata_completed_new_dwellings_PT_2026-10-29.csv`. It held 31 annual values transcribed
 by hand from PORDATA's republication of INE data, because the INE endpoint was unavailable at the time. PORDATA's
 [legal terms](https://www.pordata.pt/Termos+Legais) grant no reuse licence, so its redistribution could not be
-established, and the archive task refused to run. The file was removed on 30 October 2026. It remains in the
+established, and the release could not go ahead. The file was removed on 30 October 2026. It remains in the
 repository's git history.
 
 **Replacement.** INE indicator [`0000076`](https://www.ine.pt/xurl/indx/0000076/PT): dwellings completed in new
@@ -57,7 +57,7 @@ INE's published metadata does not explain the difference. The analysis keeps `00
 throughout and the national counterpart of the municipal data in the regional panel.
 
 **Consequence.** No pinned file has an unestablished status. `python data_sources.py --check-redistribution`
-passes, and the `release-archive` task keeps the check, so a future file that is not cleared stops the archive.
+passes, and the `release` task keeps the check, so a future file that is not cleared stops the release.
 
 ## Figures quoted from publications (not data files)
 

@@ -55,12 +55,12 @@ The workflow `.github/workflows/portugal-housing-generations.yml` runs on every 
 - a rebuild of every result file, which fails if a committed file differs;
 - the figure scripts.
 
-Data are never downloaded while computing. The workflow's manual jobs (`fetch-mortgage-rates`, `fetch-regional`,
-`fetch-affordability`, `fetch-rental`) download dated snapshots with retrieval records. They are dispatched on a
+Data are never downloaded while computing. The workflow's manual tasks (`mortgage-rates`, `regional`,
+`affordability`, `rental`, `national`) download dated snapshots with retrieval records. They are dispatched on a
 branch other than `main` and commit to that branch for review. After a reviewed refresh, run
-`python reproduce.py --write-manifest` to update the checksums. The manual `release-archive` job builds the
-archive for a Zenodo upload (see `RELEASE_CHECKLIST_v1.0.0.md`); it publishes nothing, and it stops while any
-data file's redistribution has not been established.
+`python reproduce.py --write-manifest` to update the checksums. The manual `release` task, run on `main`,
+reproduces every result, stops while any data file's redistribution has not been established, and then creates
+the tag and the GitHub release that Zenodo archives (see `RELEASE_CHECKLIST_v1.0.0.md`).
 
 Each Eurostat and INE snapshot is pinned to avoid silent changes when providers revise historical values. To
 refresh a source, replace the dated snapshot, update the file name and the script and test defaults, and
@@ -91,7 +91,7 @@ Cite the release with the metadata in [`CITATION.cff`](CITATION.cff):
 > Ribeiro, D. (2026). *Prices, incomes, construction and rents in Portugal's housing market, 2008–2025: a
 > reproducible descriptive assessment* (Version 1.0.0) [Research release]. https://github.com/DiogoRibeiro7/portugal-housing-generations
 
-No DOI exists yet. One will be added if and when the release is deposited on Zenodo.
+No DOI exists yet. Zenodo mints one when it archives the GitHub release; it will be added here then.
 
 - **Code and documentation** (scripts, tests, reports, figures and generated results) are covered by the
   repository's Apache License 2.0.

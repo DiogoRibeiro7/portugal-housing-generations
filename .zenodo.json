@@ -33,5 +33,5 @@
       "scheme": "url"
     }
   ],
-  "notes": "Build the archive with the release-archive task of .github/workflows/portugal-housing-generations.yml from the tag portugal-housing-generations-v1.0.0; it stops while DATA_SOURCES.md lists any file whose redistribution has not been established. Publish the archive's SHA-256 from the workflow artifact with the deposit."
+  "notes": "Archived by Zenodo's GitHub integration from the GitHub release portugal-housing-generations-v1.0.0, which the release task of .github/workflows/portugal-housing-generations.yml creates after reproducing every result and checking that every data file may be redistributed (DATA_SOURCES.md). Run python reproduce.py to verify the checksums and rebuild the results."
 }

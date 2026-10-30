@@ -59,11 +59,12 @@ class InventoryTests(unittest.TestCase):
         self.assertFalse(any("pordata" in name for name in reproduce.read_manifest()))
 
     @unittest.skipUnless(WORKFLOW.exists(), "workflow not present in this copy")
-    def test_archive_task_checks_redistribution_first(self) -> None:
+    def test_release_task_checks_redistribution_first(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
-        archive_job = workflow.split("release-archive:\n", 1)[1]
-        check = archive_job.index("python data_sources.py --check-redistribution")
-        self.assertLess(check, archive_job.index("git archive"))
+        release_job = workflow.split("\n  release:\n", 1)[1]
+        check = release_job.index("python data_sources.py --check-redistribution")
+        self.assertLess(release_job.index("python reproduce.py"), check)
+        self.assertLess(check, release_job.index("gh release create"))
 
     def test_documents_describe_the_sources_and_the_replaced_transcription(self) -> None:
         doc = (HERE / "DATA_SOURCES.md").read_text(encoding="utf-8")
