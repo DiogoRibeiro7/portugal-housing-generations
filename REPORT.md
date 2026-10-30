@@ -75,8 +75,8 @@ The report is deliberately conservative about inference. Every result is assigne
   stability;
 - **unresolved causal hypotheses**: questions these data cannot answer, with the evidence that would be needed.
 
-The analysis code, data snapshots, tests and the review log of this release are in the same folder (Appendix
-A).
+The analysis code, data snapshots, tests and the review log of this release are in the same repository,
+https://github.com/DiogoRibeiro7/portugal-housing-generations (Appendix A).
 
 ## 2. Research questions
 
@@ -902,6 +902,7 @@ Requirements: Python 3.10 or later (tested on 3.10 and 3.13). Only the standard 
 analysis. Figures need matplotlib 3.11.2 on Python 3.13.
 
 ```bash
+git clone https://github.com/DiogoRibeiro7/portugal-housing-generations
 cd portugal-housing-generations
 python reproduce.py            # checks data/SHA256SUMS, runs the tests, rebuilds every output and compares bytes
 pip install matplotlib==3.11.2 && python reproduce.py   # also redraws the 21 figures

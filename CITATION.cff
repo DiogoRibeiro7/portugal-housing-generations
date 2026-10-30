@@ -16,8 +16,8 @@ authors:
     affiliation: "Faculdade de Media Artes e Design, Universidade Técnica do Porto"
 version: 1.0.0
 license: Apache-2.0
-repository-code: "https://github.com/DiogoRibeiro7/Medium-Blog"
-url: "https://github.com/DiogoRibeiro7/Medium-Blog/tree/main/portugal-housing-generations"
+repository-code: "https://github.com/DiogoRibeiro7/portugal-housing-generations"
+url: "https://github.com/DiogoRibeiro7/portugal-housing-generations"
 keywords:
   - housing affordability
   - house prices
@@ -38,4 +38,4 @@ preferred-citation:
       affiliation: "Faculdade de Media Artes e Design, Universidade Técnica do Porto"
   version: 1.0.0
   year: 2026
-  url: "https://github.com/DiogoRibeiro7/Medium-Blog/tree/main/portugal-housing-generations"
+  url: "https://github.com/DiogoRibeiro7/portugal-housing-generations"

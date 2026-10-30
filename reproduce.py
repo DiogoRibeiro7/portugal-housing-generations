@@ -12,7 +12,7 @@ Steps (standard library only; matplotlib only for step 4):
    flagged; a pixel difference without any change in the data comes from a
    different matplotlib, FreeType or font build. Neither fails the run.
 
-Works from a plain copy of the folder (no git needed).
+Works from a plain copy of the repository, such as the release archive (no git needed).
 
 Run:  python reproduce.py                    # exits 0 if everything reproduces
       python reproduce.py --write-manifest   # maintainers: rewrite data/SHA256SUMS
@@ -98,7 +98,7 @@ def pixel_difference(old_png: bytes, new_png: bytes) -> str:
 
 
 def run(cmd: list[str], quiet: bool = False) -> int:
-    """Run a command in this folder; with ``quiet``, show its output only if it fails."""
+    """Run a command in this directory; with ``quiet``, show its output only if it fails."""
     print("$", " ".join(cmd), flush=True)
     if not quiet:
         return subprocess.run(cmd, cwd=HERE, check=False).returncode

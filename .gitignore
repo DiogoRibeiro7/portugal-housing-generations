@@ -1,0 +1,17 @@
+# Python bytecode and tool caches
+__pycache__/
+*.pyc
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Release archive built by the release-archive task
+dist/
+
+# Operating-system metadata
+.DS_Store
+Thumbs.db

@@ -12,7 +12,7 @@ before any new deposit.
 
 ## Licences: what covers what
 
-- **Original code and documentation** in this folder (scripts, tests, reports, figures and generated results) are
+- **Original code and documentation** in this repository (scripts, tests, reports, figures and generated results) are
   covered by the repository's Apache License 2.0.
 - **Third-party data** in `data/` are **not** relicensed under Apache-2.0. They are redistributed, where
   permitted, under each provider's own terms, listed below. Generated results and figures are derived from these
