@@ -4,8 +4,9 @@ Status as of 30 October 2026. Each entry is **PASS** (done and verified), **BLOC
 something outside this repository changes) or **NOT YET DONE** (a step for the maintainer, which nothing here
 does automatically).
 
-**Verdict: no blocker remains.** Every data file may be redistributed (A5). What is left are the release steps
-themselves (section E) and one optional decision on the completions series (A9).
+**Verdict: released.** v1.0.0 was published on 30 October 2026 and archived on Zenodo with DOI
+[10.5281/zenodo.23816265](https://doi.org/10.5281/zenodo.23816265) (section E). One decision is left for a later version: the completions
+series (A9).
 
 ## A. Data and licensing
 
@@ -47,8 +48,8 @@ themselves (section E) and one optional decision on the completions series (A9).
 | D1 | Author name, ORCID and contact e-mail consistent | PASS | `CITATION.cff`, `.zenodo.json`, report header; `tests/test_release.py` |
 | D2 | Institutional affiliation | PASS | "Faculdade de Media Artes e Design, Universidade Técnica do Porto" (Portaria n.º 332-A/2026/1, 11 August 2026) |
 | D3 | Version | PASS | 1.0.0 in `CITATION.cff`, `.zenodo.json`, report, release notes |
-| D4 | Release date | NOT YET DONE | Recorded by the GitHub release and the Zenodo record; add `date-released` to `CITATION.cff` with the DOI (E8) |
-| D5 | DOI | NOT YET DONE | None recorded or invented; Zenodo mints it when it archives the GitHub release |
+| D4 | Release date | PASS | 30 October 2026, in `CITATION.cff`, the GitHub release and the Zenodo record |
+| D5 | DOI | PASS | 10.5281/zenodo.23816265 (version 1.0.0), minted by Zenodo; in `CITATION.cff`, the README and the report; `tests/test_release.py` |
 | D6 | Citations and references | PASS | Report references updated (Costa et al. 2023; INE 0011495; Eurostat HICP manual and rent recommendations; INE rent-survey note) |
 | D7 | Reproducibility instructions | PASS | README "Reproducing the release", report Appendix A, `reproduce.py` docstring |
 
@@ -65,11 +66,11 @@ source zip of the same commit, which Zenodo archives, matched its per-file manif
 | E1 | Merge the release pull requests | PASS |
 | E2 | Clear A5 (PORDATA file replaced by INE 0000076) | PASS |
 | E3 | Repository public | PASS |
-| E4 | Repository switched on in Zenodo's GitHub settings | NOT YET DONE (cannot be checked from GitHub) |
-| E5 | `package` run: archive, SHA-256 and per-file manifest reviewed and approved | NOT YET DONE |
-| E6 | `release` run: annotated tag and GitHub release with the approved archive | NOT YET DONE (needs authorisation) |
-| E7 | Zenodo record checked against the per-file manifest | NOT YET DONE |
-| E8 | DOI and release date added to `CITATION.cff`, `README.md` and `docs/report.md` | NOT YET DONE |
+| E4 | Repository switched on in Zenodo's GitHub settings | PASS (Zenodo archived the release) |
+| E5 | `package` run: archive, SHA-256 and per-file manifest reviewed and approved | PASS: run 41107511863 on `b0916fa`; approved SHA-256 `a31ee6da2388e1c6b9e7c8a7fd52f82d8cac421c9fdbf09355e587193bc44b0b` |
+| E6 | `release` run: annotated tag and GitHub release with the approved archive | PASS: run 41110765765 rebuilt the archive with the approved SHA-256; annotated tag on `b0916fa`; release published 18:55 UTC with the zip, `.zip.sha256` and `.files.sha256` |
+| E7 | Zenodo record checked against the per-file manifest | PASS: record 23816265 matches `.zenodo.json`; its file has the MD5 of GitHub's source zip of the tag (`94e18dc3…`), whose 150 files match the manifest |
+| E8 | DOI and release date added to `CITATION.cff`, `README.md` and `docs/report.md` | PASS (this follow-up pull request) |
 
 Commands are for PowerShell with the GitHub CLI; `R` is the repository.
 

@@ -129,30 +129,44 @@ jobs:
           path: dist/
           if-no-files-found: error
 
+      # Inputs reach the shell only as environment variables, never as code, and the approved value must be a
+      # SHA-256 in hexadecimal before it is compared.
       - name: Check the approved SHA-256
         if: inputs.task == 'release'
+        env:
+          APPROVED_SHA256: ${{ inputs.approved_sha256 }}
+          BUILT_SHA256: ${{ steps.package.outputs.sha256 }}
         run: |
-          if [ "${{ inputs.approved_sha256 }}" != "${{ steps.package.outputs.sha256 }}" ]; then
-            echo "::error::built ${{ steps.package.outputs.sha256 }}, approved '${{ inputs.approved_sha256 }}'"
+          if ! [[ "${APPROVED_SHA256}" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error::approved_sha256 must be 64 lowercase hexadecimal characters"
+            exit 1
+          fi
+          if [ "${APPROVED_SHA256}" != "${BUILT_SHA256}" ]; then
+            echo "::error::built ${BUILT_SHA256}, approved ${APPROVED_SHA256}"
             exit 1
           fi
 
       - name: Create the annotated tag
         if: inputs.task == 'release'
+        env:
+          TAG: ${{ steps.package.outputs.tag }}
+          VERSION: ${{ steps.package.outputs.version }}
         run: |
           git config user.name "Diogo Ribeiro"
           git config user.email "diogo_dj@hotmail.com"
-          git tag -a "${{ steps.package.outputs.tag }}" -m "Portugal housing research release v${{ steps.package.outputs.version }}" "${GITHUB_SHA}"
-          git push origin "refs/tags/${{ steps.package.outputs.tag }}"
+          git tag -a "${TAG}" -m "Portugal housing research release v${VERSION}" "${GITHUB_SHA}"
+          git push origin "refs/tags/${TAG}"
 
       - name: Create the GitHub release with the artifact
         if: inputs.task == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.package.outputs.tag }}
+          VERSION: ${{ steps.package.outputs.version }}
         run: |
-          gh release create "${{ steps.package.outputs.tag }}" --verify-tag \
-            --title "Portugal housing research release v${{ steps.package.outputs.version }}" \
-            --notes-file "docs/release/notes-v${{ steps.package.outputs.version }}.md" \
+          gh release create "${TAG}" --verify-tag \
+            --title "Portugal housing research release v${VERSION}" \
+            --notes-file "docs/release/notes-v${VERSION}.md" \
             dist/*.zip dist/*.sha256
 
   # Refreshing the ECB series is a manual, reviewed step: dispatch this workflow
@@ -209,7 +223,9 @@ jobs:
           python-version: '3.13'
 
       - name: Download the INE series
-        run: python -m housing_pt.sources.fetch_regional --out data --set ${{ inputs.task }}
+        env:
+          TASK: ${{ inputs.task }}
+        run: python -m housing_pt.sources.fetch_regional --out data --set "${TASK}"
 
       - name: Commit the outputs
         if: always()

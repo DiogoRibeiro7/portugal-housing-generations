@@ -19,6 +19,7 @@ ORCID = "0009-0001-2022-7072"
 # Portaria n.º 332-A/2026/1 (11 August 2026): the Politécnico do Porto became the Universidade Técnica do Porto,
 # with the Faculdade de Media Artes e Design (FMAD) among its units.
 AFFILIATION = "Faculdade de Media Artes e Design, Universidade Técnica do Porto"
+DOI = "10.5281/zenodo.23816265"  # version 1.0.0 on Zenodo
 
 
 def cff_field(text: str, key: str) -> str:
@@ -67,17 +68,22 @@ class MetadataTests(unittest.TestCase):
         self.assertEqual([c["affiliation"] for c in zenodo["creators"]], [AFFILIATION])
         self.assertIn("email: dfr@esmad.ipp.pt", cff)
 
-    def test_no_release_date_or_doi_before_the_release_exists(self) -> None:
-        """The date and DOI are set when the tag and the Zenodo deposit exist; none may be invented before."""
+    def test_doi_and_release_date_match_the_zenodo_record(self) -> None:
+        """v1.0.0 was released on 30 October 2026 and archived on Zenodo with one version DOI, used everywhere."""
         cff = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
         zenodo = json.loads((ROOT / ".zenodo.json").read_text(encoding="utf-8"))
-        self.assertNotIn("date-released", cff)
-        self.assertNotIn("doi", cff.lower().replace("doi.org/10.2908", ""))
+        self.assertEqual(cff_field(cff, "doi"), DOI)
+        self.assertEqual(cff_field(cff, "date-released"), "2026-10-30")
+        self.assertEqual(cff.count(f"doi: {DOI}"), 2)  # top level and preferred-citation
+        self.assertNotIn("doi", zenodo)  # Zenodo assigns each version its own DOI
         self.assertNotIn("publication_date", zenodo)
-        self.assertNotIn("doi", zenodo)
+        for name in ("README.md", "docs/report.md"):
+            with self.subTest(file=name):
+                self.assertIn(f"https://doi.org/{DOI}", (ROOT / name).read_text(encoding="utf-8"))
         for name in ("README.md", "docs/report.md", "docs/release/notes-v1.0.0.md", "docs/release/checklist-v1.0.0.md"):
             with self.subTest(file=name):
-                self.assertNotRegex((ROOT / name).read_text(encoding="utf-8"), r"10\.5281/zenodo")
+                found = set(re.findall(r"10\.5281/zenodo\.\d+", (ROOT / name).read_text(encoding="utf-8")))
+                self.assertLessEqual(found, {DOI})
 
     def test_licence_statements_do_not_relicense_third_party_data(self) -> None:
         zenodo = json.loads((ROOT / ".zenodo.json").read_text(encoding="utf-8"))

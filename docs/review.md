@@ -167,6 +167,9 @@ docstring.
 **New files:** `CITATION.cff` (CFF 1.2.0) and `.zenodo.json`. Their title, version, licence, date and ORCID
 are checked against each other by `test_release.py`.
 
+*Superseded: this describes the monorepo set-up before the move. v1.0.0 was released by the `package` and
+`release` workflow tasks and archived by Zenodo's GitHub integration (see "Release of v1.0.0" below).*
+
 **Archive.** Zenodo's GitHub integration archives a whole repository, and this project lives in a monorepo.
 The release is therefore prepared for a manual upload:
 - the workflow's `release-archive` task reproduces the release;
@@ -258,7 +261,8 @@ values are unchanged. Only definition and note strings in two result files and l
 - *PORDATA:* the legal terms (updated 19.07.2024) claim copyright and related rights and grant no reuse licence,
   so redistribution of the transcribed national completions series has not been established.
 
-The archive task now stops while such a file exists.
+The archive task now stops while such a file exists. *(Superseded: the `package` and `release` tasks now hold
+this check.)*
 
 **Resolution of the PORDATA blocker (30 October 2026).** The transcription was replaced by INE indicator 0000076
 (NUTS 2002 by typology, 1995–2025), found in INE's indicator catalogue and fetched for Portugal through the
@@ -320,7 +324,8 @@ flagging them, and warns (as a GitHub annotation in CI) for any figure whose pix
   do Porto.
 - *Contact e-mail:* unchanged (dfr@esmad.ipp.pt).
 - *Dates and DOI:* the planned release date was removed from `CITATION.cff` and `.zenodo.json` until the tag
-  exists. No DOI is recorded.
+  exists. No DOI is recorded. *(Superseded: both were added after the release, 30 October 2026 and
+  10.5281/zenodo.23816265.)*
 
 The status of every item is in `RELEASE_CHECKLIST_v1.0.0.md`.
 
@@ -331,3 +336,20 @@ The status of every item is in `RELEASE_CHECKLIST_v1.0.0.md`.
 2. **Release date.** Set `date-released` in `CITATION.cff` and the publication date on Zenodo when the tag is
    created.
 3. **DOI.** After the Zenodo deposit, add the DOI to `CITATION.cff`, the README and the report.
+
+*Status after the release:* item 1 remains open for a later version; items 2 and 3 are done.
+
+## Release of v1.0.0 (30 October 2026)
+
+- *Package:* run 41107511863 on commit `b0916fa` reproduced every result, found every data file redistributable,
+  and built the archive with SHA-256 `a31ee6da2388e1c6b9e7c8a7fd52f82d8cac421c9fdbf09355e587193bc44b0b`. The approved value was that SHA-256.
+- *Release:* run 41110765765 rebuilt the archive with the same SHA-256 and created the annotated tag
+  `portugal-housing-generations-v1.0.0` on `b0916fa` and the GitHub release, with the zip and its checksums attached.
+- *Checks after publication:* the attached zip matches its SHA-256 and every one of its 150 files matches the
+  attached manifest. The manifest equals one built independently from the commit, and `reproduce.py` prints
+  `REPRODUCED` from inside the zip. All 21 figures were pixel-identical to the committed ones in both runs.
+- *Zenodo:* record 23816265, DOI 10.5281/zenodo.23816265, version 1.0.0. Its metadata match `.zenodo.json`, and its file has the
+  same MD5 as GitHub's source zip of the tag, whose files match the manifest.
+- *Workflow hardening:* the approved SHA-256 and the other inputs now reach the shell only through environment
+  variables, and the SHA-256 must be 64 hexadecimal characters; a test guards both.
+

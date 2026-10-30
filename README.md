@@ -1,6 +1,7 @@
 # Portugal's housing market, 2008–2025: a reproducible descriptive assessment
 
 [![CI](https://github.com/DiogoRibeiro7/portugal-housing-generations/actions/workflows/portugal-housing-generations.yml/badge.svg)](https://github.com/DiogoRibeiro7/portugal-housing-generations/actions/workflows/portugal-housing-generations.yml)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23816265.svg)](https://doi.org/10.5281/zenodo.23816265)
 [![Licence: Apache-2.0](https://img.shields.io/badge/licence-Apache--2.0-blue.svg)](LICENSE)
 
 **Research release v1.0.0.** Pinned official data, a standard-library Python package, tests, figures, a research
@@ -109,9 +110,10 @@ review the change.
 Cite the release with the metadata in [`CITATION.cff`](CITATION.cff):
 
 > Ribeiro, D. (2026). *Prices, incomes, construction and rents in Portugal's housing market, 2008–2025: a
-> reproducible descriptive assessment* (Version 1.0.0) [Research release]. https://github.com/DiogoRibeiro7/portugal-housing-generations
+> reproducible descriptive assessment* (Version 1.0.0) [Research release]. Zenodo. https://doi.org/10.5281/zenodo.23816265
 
-No DOI exists yet. Zenodo mints one when it archives the GitHub release; it will be added here then.
+Version 1.0.0 is archived on Zenodo with DOI [10.5281/zenodo.23816265](https://doi.org/10.5281/zenodo.23816265), from the GitHub release
+[`portugal-housing-generations-v1.0.0`](https://github.com/DiogoRibeiro7/portugal-housing-generations/releases/tag/portugal-housing-generations-v1.0.0).
 
 - **Code and documentation** (scripts, tests, reports, figures and generated results) are covered by the
   repository's Apache License 2.0.
