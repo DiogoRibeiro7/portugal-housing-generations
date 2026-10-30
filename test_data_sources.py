@@ -11,7 +11,7 @@ import data_sources as D
 import reproduce
 
 HERE = Path(__file__).parent
-WORKFLOW = HERE.parent / ".github" / "workflows" / "portugal-housing-generations.yml"
+WORKFLOW = HERE / ".github" / "workflows" / "portugal-housing-generations.yml"
 
 
 class InventoryTests(unittest.TestCase):
@@ -58,7 +58,7 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(D.blocked(D.inventory()), [])
         self.assertFalse(any("pordata" in name for name in reproduce.read_manifest()))
 
-    @unittest.skipUnless(WORKFLOW.exists(), "workflow is outside this folder (e.g. in the release archive)")
+    @unittest.skipUnless(WORKFLOW.exists(), "workflow not present in this copy")
     def test_archive_task_checks_redistribution_first(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
         archive_job = workflow.split("release-archive:\n", 1)[1]

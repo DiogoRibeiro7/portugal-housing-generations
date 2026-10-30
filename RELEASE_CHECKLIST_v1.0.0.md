@@ -80,8 +80,9 @@ themselves (section E) and one optional decision on the completions series (A9).
    - It uploads both as a workflow artifact.
 
    Download them and run `sha256sum --check portugal-housing-generations-v1.0.0.zip.sha256`.
-3. **Zenodo deposit (E6).** Create a new upload on Zenodo, not through the GitHub integration, which would archive
-   the whole repository.
+3. **Zenodo deposit (E6).** Create a new upload on Zenodo. Zenodo's GitHub integration, which would archive each
+   GitHub release automatically, works only with public repositories, so it is not available while this one is
+   private.
    - Attach the zip.
    - Enter the metadata from `.zenodo.json`: upload type publication/report, licence Apache-2.0 for code and
      documentation, creator with ORCID and affiliation, keywords, and the related identifier for the tag.

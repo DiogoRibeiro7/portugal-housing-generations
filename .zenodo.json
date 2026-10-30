@@ -27,7 +27,7 @@
   ],
   "related_identifiers": [
     {
-      "identifier": "https://github.com/DiogoRibeiro7/Medium-Blog/tree/portugal-housing-generations-v1.0.0/portugal-housing-generations",
+      "identifier": "https://github.com/DiogoRibeiro7/portugal-housing-generations/tree/portugal-housing-generations-v1.0.0",
       "relation": "isSupplementTo",
       "resource_type": "software",
       "scheme": "url"

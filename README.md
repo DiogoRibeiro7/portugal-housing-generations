@@ -1,6 +1,6 @@
 # Portugal's housing market, 2008–2025: a reproducible descriptive assessment
 
-**Research release v1.0.0.** This folder holds pinned official data, standard-library Python code, tests,
+**Research release v1.0.0.** This repository holds pinned official data, standard-library Python code, tests,
 figures and a research report on house prices, incomes, construction, population and rents in Portugal.
 
 - **Report:** [`REPORT.md`](REPORT.md) is the consolidated research report: questions, institutional context,
@@ -19,6 +19,7 @@ Requirements: Python 3.10 or later (CI tests 3.10 and 3.13). The analysis uses t
 Figures need matplotlib 3.11.2.
 
 ```bash
+git clone https://github.com/DiogoRibeiro7/portugal-housing-generations
 cd portugal-housing-generations
 python reproduce.py                                    # data checksums, tests, rebuild, byte comparison
 pip install matplotlib==3.11.2 && python reproduce.py  # also redraws the figures
@@ -48,8 +49,8 @@ from the code.
 
 ### Continuous integration and data refreshes
 
-The workflow `.github/workflows/portugal-housing-generations.yml` runs on every pull request that touches this
-folder:
+The workflow `.github/workflows/portugal-housing-generations.yml` runs on every pull request and every push to
+`main`:
 - the tests, on Python 3.10 and 3.13;
 - a rebuild of every result file, which fails if a committed file differs;
 - the figure scripts.
@@ -88,7 +89,7 @@ review the change.
 Cite the release with the metadata in [`CITATION.cff`](CITATION.cff):
 
 > Ribeiro, D. (2026). *Prices, incomes, construction and rents in Portugal's housing market, 2008–2025: a
-> reproducible descriptive assessment* (Version 1.0.0) [Research release]. https://github.com/DiogoRibeiro7/Medium-Blog/tree/main/portugal-housing-generations
+> reproducible descriptive assessment* (Version 1.0.0) [Research release]. https://github.com/DiogoRibeiro7/portugal-housing-generations
 
 No DOI exists yet. One will be added if and when the release is deposited on Zenodo.
 

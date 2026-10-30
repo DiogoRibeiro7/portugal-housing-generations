@@ -134,7 +134,7 @@ def request(url: str, timeout: float = 300.0, attempts: int = 6) -> tuple[bytes,
     last_error: Exception | None = None
     for attempt in range(attempts):
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "Medium-Blog reproducibility fetch"})
+            req = urllib.request.Request(url, headers={"User-Agent": "portugal-housing-generations reproducibility fetch"})
             with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 (fixed https host)
                 charset = resp.headers.get_content_charset() or "utf-8"
                 return resp.read(), resp.status, charset

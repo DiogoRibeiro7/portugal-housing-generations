@@ -32,7 +32,7 @@ REQUIRED_COLUMNS = {"KEY", "TIME_PERIOD", "OBS_VALUE"}
 
 def download(url: str, timeout: float = 60.0) -> tuple[bytes, int, dict[str, str]]:
     """Return the body, HTTP status and selected response headers for ``url``."""
-    request = urllib.request.Request(url, headers={"Accept": "text/csv", "User-Agent": "Medium-Blog reproducibility fetch"})
+    request = urllib.request.Request(url, headers={"Accept": "text/csv", "User-Agent": "portugal-housing-generations reproducibility fetch"})
     with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310 (fixed https URL)
         body = response.read()
         headers = {name: response.headers[name] for name in ("Content-Type", "Last-Modified", "ETag", "Date") if response.headers[name]}

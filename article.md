@@ -12,7 +12,7 @@ The first group is what I call established findings. These are arithmetic on off
 
 That split is the main methodological claim of the article. A large share of the public argument about housing consists of results from the second group being presented as if they belonged to the third. A smaller but real share consists of perfectly solid results from the first group being dismissed because they are inconvenient. Keeping the groups apart is most of the work.
 
-The code, data, tests and a longer technical report are in the [project folder of my Medium-Blog repository](https://github.com/DiogoRibeiro7/Medium-Blog/tree/main/portugal-housing-generations).
+The code, data, tests and a longer technical report are in the [project repository](https://github.com/DiogoRibeiro7/portugal-housing-generations).
 
 ## Why the numbers in the housing debate rarely agree
 
@@ -383,6 +383,7 @@ And I do not treat a low or falling overburden rate as evidence that housing has
 A body of evidence like this is only as useful as one's ability to check it. Everything above can be reproduced with one command:
 
 ```
+git clone https://github.com/DiogoRibeiro7/portugal-housing-generations
 cd portugal-housing-generations
 python reproduce.py
 ```
@@ -405,7 +406,7 @@ Unresolved: the role of tourism, foreign demand, immigration, interest rates, re
 
 For decision-makers the first group is already enough to act on, because it describes what households face, independently of why. The second group helps with forecasting and monitoring. Rents and prices can be tracked together, but the mix of what is sold has to be controlled before a price series is read as a price change. The third group sets an agenda: transaction-level indices, policy timing, measures of exposure and access to linked microdata. Producing those is where the next unit of research effort would buy the most.
 
-The data, code and full technical report are in the [repository](https://github.com/DiogoRibeiro7/Medium-Blog/tree/main/portugal-housing-generations). Every number can be checked, and I would like to hear about any that do not reproduce.
+The data, code and full technical report are in the [repository](https://github.com/DiogoRibeiro7/portugal-housing-generations). Every number can be checked, and I would like to hear about any that do not reproduce.
 
 ## References
 

@@ -1,0 +1,7 @@
+# Text files are checked out with LF endings on every system: results and panels are rebuilt and compared
+# byte for byte by reproduce.py and CI.
+* text=auto eol=lf
+# Pinned source data are checksummed in data/SHA256SUMS: stored and checked out byte for byte.
+data/** -text
+# Large generated tables: no line diffs or text merges.
+*.csv -diff -merge
