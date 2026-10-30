@@ -49,7 +49,7 @@ series (A9).
 | D2 | Institutional affiliation | PASS | "Faculdade de Media Artes e Design, Universidade Técnica do Porto" (Portaria n.º 332-A/2026/1, 11 August 2026) |
 | D3 | Version | PASS | 1.0.0 in `CITATION.cff`, `.zenodo.json`, report, release notes |
 | D4 | Release date | PASS | 30 October 2026, in `CITATION.cff`, the GitHub release and the Zenodo record |
-| D5 | DOI | PASS | 10.5281/zenodo.23816265 (version 1.0.0), minted by Zenodo; in `CITATION.cff`, the README and the report; `tests/test_release.py` |
+| D5 | DOI | PASS | 10.5281/zenodo.23816265 (version 1.0.0) and concept DOI 10.5281/zenodo.23816264 (all versions), minted by Zenodo; in `CITATION.cff`, the README and the report; `tests/test_release.py` |
 | D6 | Citations and references | PASS | Report references updated (Costa et al. 2023; INE 0011495; Eurostat HICP manual and rent recommendations; INE rent-survey note) |
 | D7 | Reproducibility instructions | PASS | README "Reproducing the release", report Appendix A, `reproduce.py` docstring |
 

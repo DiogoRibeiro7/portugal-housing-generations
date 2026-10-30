@@ -114,6 +114,8 @@ Cite the release with the metadata in [`CITATION.cff`](CITATION.cff):
 
 Version 1.0.0 is archived on Zenodo with DOI [10.5281/zenodo.23816265](https://doi.org/10.5281/zenodo.23816265), from the GitHub release
 [`portugal-housing-generations-v1.0.0`](https://github.com/DiogoRibeiro7/portugal-housing-generations/releases/tag/portugal-housing-generations-v1.0.0).
+To cite all versions, use the concept DOI [10.5281/zenodo.23816264](https://doi.org/10.5281/zenodo.23816264), which always resolves to the
+latest version.
 
 - **Code and documentation** (scripts, tests, reports, figures and generated results) are covered by the
   repository's Apache License 2.0.

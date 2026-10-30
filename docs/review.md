@@ -348,7 +348,7 @@ The status of every item is in `RELEASE_CHECKLIST_v1.0.0.md`.
 - *Checks after publication:* the attached zip matches its SHA-256 and every one of its 150 files matches the
   attached manifest. The manifest equals one built independently from the commit, and `reproduce.py` prints
   `REPRODUCED` from inside the zip. All 21 figures were pixel-identical to the committed ones in both runs.
-- *Zenodo:* record 23816265, DOI 10.5281/zenodo.23816265, version 1.0.0. Its metadata match `.zenodo.json`, and its file has the
+- *Zenodo:* record 23816265, DOI 10.5281/zenodo.23816265, version 1.0.0; concept DOI for all versions 10.5281/zenodo.23816264. Its metadata match `.zenodo.json`, and its file has the
   same MD5 as GitHub's source zip of the tag, whose files match the manifest.
 - *Workflow hardening:* the approved SHA-256 and the other inputs now reach the shell only through environment
   variables, and the SHA-256 must be 64 hexadecimal characters; a test guards both.

@@ -17,6 +17,13 @@ authors:
 version: 1.0.0
 doi: 10.5281/zenodo.23816265
 date-released: "2026-10-30"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23816265
+    description: "Version 1.0.0"
+  - type: doi
+    value: 10.5281/zenodo.23816264
+    description: "Concept DOI: all versions, resolves to the latest"
 license: Apache-2.0
 repository-code: "https://github.com/DiogoRibeiro7/portugal-housing-generations"
 url: "https://github.com/DiogoRibeiro7/portugal-housing-generations"

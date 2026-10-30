@@ -20,6 +20,7 @@ ORCID = "0009-0001-2022-7072"
 # with the Faculdade de Media Artes e Design (FMAD) among its units.
 AFFILIATION = "Faculdade de Media Artes e Design, Universidade Técnica do Porto"
 DOI = "10.5281/zenodo.23816265"  # version 1.0.0 on Zenodo
+CONCEPT_DOI = "10.5281/zenodo.23816264"  # all versions
 
 
 def cff_field(text: str, key: str) -> str:
@@ -75,6 +76,9 @@ class MetadataTests(unittest.TestCase):
         self.assertEqual(cff_field(cff, "doi"), DOI)
         self.assertEqual(cff_field(cff, "date-released"), "2026-10-30")
         self.assertEqual(cff.count(f"doi: {DOI}"), 2)  # top level and preferred-citation
+        self.assertIn(f"value: {DOI}", cff)
+        self.assertIn(f"value: {CONCEPT_DOI}", cff)
+        self.assertIn(f"https://doi.org/{CONCEPT_DOI}", (ROOT / "README.md").read_text(encoding="utf-8"))
         self.assertNotIn("doi", zenodo)  # Zenodo assigns each version its own DOI
         self.assertNotIn("publication_date", zenodo)
         for name in ("README.md", "docs/report.md"):
@@ -83,7 +87,7 @@ class MetadataTests(unittest.TestCase):
         for name in ("README.md", "docs/report.md", "docs/release/notes-v1.0.0.md", "docs/release/checklist-v1.0.0.md"):
             with self.subTest(file=name):
                 found = set(re.findall(r"10\.5281/zenodo\.\d+", (ROOT / name).read_text(encoding="utf-8")))
-                self.assertLessEqual(found, {DOI})
+                self.assertLessEqual(found, {DOI, CONCEPT_DOI})
 
     def test_licence_statements_do_not_relicense_third_party_data(self) -> None:
         zenodo = json.loads((ROOT / ".zenodo.json").read_text(encoding="utf-8"))
