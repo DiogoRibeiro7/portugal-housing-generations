@@ -27,8 +27,8 @@ First research release, prepared on 30 October 2026 from data snapshots of 29 Oc
   - wording guards for the two statements corrected after an independent review.
 - **Reproduction.** `python reproduce.py`.
 - **Review log.** [`REVIEW.md`](REVIEW.md).
-- **Metadata.** [`CITATION.cff`](CITATION.cff) and [`.zenodo.json`](.zenodo.json). No release date or DOI
-  is recorded yet: both are set when the tag and the Zenodo deposit exist.
+- **Metadata.** [`CITATION.cff`](CITATION.cff) and [`.zenodo.json`](.zenodo.json). Zenodo's GitHub integration archives the
+  GitHub release from these files and mints the DOI, which is then added to `CITATION.cff`.
 - **Release checklist.** [`RELEASE_CHECKLIST_v1.0.0.md`](RELEASE_CHECKLIST_v1.0.0.md).
 
 ## Licences
@@ -39,8 +39,8 @@ attribution listed in `DATA_SOURCES.md`.
 
 Every pinned file may be redistributed with attribution. The national completions series, 1995–2025, which was
 earlier transcribed from PORDATA (whose terms grant no reuse licence), has been replaced by INE indicator 0000076,
-fetched from INE's API. Its values are identical in all 31 years. The archive task still checks every file's
-status before building the archive.
+fetched from INE's API. Its values are identical in all 31 years. The release task still checks every file's
+status before publishing.
 
 ## Main findings
 
@@ -100,7 +100,8 @@ uses them. No verdict changed.
 - tests on Python 3.10 and 3.13;
 - data checksum verification;
 - the report figure;
-- a manual `release-archive` task that builds the archive without publishing it.
+- a manual `release` task that reproduces the release, checks every data file's status and creates the tag and
+  GitHub release that Zenodo archives.
 
 **Release-readiness review (30 October 2026):**
 - *Data licensing.* Added a file-by-file inventory with provider terms checked on the providers' own pages. The
@@ -142,5 +143,5 @@ These are listed in full in report Section 9:
 
 ## Before publishing
 
-See [`RELEASE_CHECKLIST_v1.0.0.md`](RELEASE_CHECKLIST_v1.0.0.md) for the status of every check and the manual
-steps for the tag, archive checksum, Zenodo deposit and DOI update. Nothing is published automatically.
+See [`RELEASE_CHECKLIST_v1.0.0.md`](RELEASE_CHECKLIST_v1.0.0.md) for the status of every check and the steps
+for the release: make the repository public, enable it on Zenodo, run the `release` task, then add the DOI.

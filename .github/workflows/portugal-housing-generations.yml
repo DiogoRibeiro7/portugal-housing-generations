@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       task:
-        description: Which source to download, or release-archive to build the archive for a Zenodo upload
+        description: Which source to download (on a branch), or release to publish the version in CITATION.cff (on main)
         type: choice
         options:
           - mortgage-rates
@@ -16,7 +16,7 @@ on:
           - affordability
           - rental
           - national
-          - release-archive
+          - release
         default: mortgage-rates
 
 permissions:
@@ -66,13 +66,16 @@ jobs:
           python -m pip install matplotlib==3.11.2
           python reproduce.py
 
-  # Builds the release archive for a manual Zenodo upload. It reproduces every result
-  # first and uploads the zip and its SHA-256 as a workflow artifact; it creates no
-  # GitHub release, tag or Zenodo record.
-  release-archive:
-    if: github.event_name == 'workflow_dispatch' && inputs.task == 'release-archive'
+  # Publishes a release: reproduces every result, checks that every data file may be redistributed, then creates
+  # the tag and the GitHub release for the version in CITATION.cff, with the release notes as its text. Zenodo's
+  # GitHub integration, once enabled for this repository (it must be public), archives the release and mints the
+  # DOI from .zenodo.json. Runs only on main.
+  release:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.task == 'release'
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -88,26 +91,23 @@ jobs:
           python reproduce.py
 
       # Stops here while any data file's redistribution has not been established
-      # (see DATA_SOURCES.md), so no such file reaches a public archive.
+      # (see DATA_SOURCES.md), so no such file reaches a public release.
       - name: Check that every data file may be redistributed
         run: python data_sources.py --check-redistribution
 
-      - name: Build the archive from the committed tree
-        id: archive
+      - name: Create the tag and the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           version=$(sed -n 's/^version: *//p' CITATION.cff)
-          name="portugal-housing-generations-v${version}"
-          mkdir -p dist
-          git archive --format=zip --prefix="${name}/" -o "dist/${name}.zip" HEAD
-          (cd dist && sha256sum "${name}.zip" > "${name}.zip.sha256" && cat "${name}.zip.sha256")
-          echo "name=${name}" >> "$GITHUB_OUTPUT"
-
-      - name: Upload the archive
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.archive.outputs.name }}
-          path: dist/
-          if-no-files-found: error
+          tag="portugal-housing-generations-v${version}"
+          if git ls-remote --exit-code --tags origin "refs/tags/${tag}" > /dev/null; then
+            echo "::error::${tag} already exists"
+            exit 1
+          fi
+          gh release create "${tag}" --target "${GITHUB_SHA}" \
+            --title "Portugal housing research release v${version}" \
+            --notes-file "RELEASE_NOTES_v${version}.md"
 
   # Refreshing the ECB series is a manual, reviewed step: dispatch this workflow
   # on a branch other than main; the job commits the dated raw response and its

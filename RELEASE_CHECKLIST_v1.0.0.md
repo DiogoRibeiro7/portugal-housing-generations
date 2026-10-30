@@ -17,7 +17,7 @@ themselves (section E) and one optional decision on the completions series (A9).
 | A4 | ECB terms verified | PASS | ECB statistics usage policy: free reuse with the source quoted, no modification |
 | A5 | Every data file redistributable | PASS | The PORDATA transcription (no reuse licence) was replaced by INE indicator 0000076, fetched by the workflow task `national`; identical values 1995–2025. `data_sources.py --check-redistribution` passes |
 | A6 | Code and documentation licence kept separate from third-party data; no relicensing of data under Apache-2.0 | PASS | README "Citing and licences", `DATA_SOURCES.md`, `.zenodo.json` description; `test_release.py` |
-| A7 | Archive cannot silently include a file that is not cleared | PASS | `release-archive` runs `python data_sources.py --check-redistribution` before `git archive` and stops on any file not cleared |
+| A7 | A release cannot silently include a file that is not cleared | PASS | The `release` task runs `python data_sources.py --check-redistribution` before creating the release and stops on any file not cleared; `test_data_sources.py` |
 | A8 | PORDATA file removed from the repository | PASS | Deleted from `data/` and the manifest; it remains in the git history |
 | A9 | Optional: national completions on INE's long series instead | NOT YET DONE | INE 0011725 (pinned as a cross-check) is 2–37% higher than 0000076 in every year; INE's metadata gives no reason. 0000076 is kept, consistent with the municipal panel (`DATA_SOURCES.md`) |
 
@@ -47,48 +47,34 @@ themselves (section E) and one optional decision on the completions series (A9).
 | D1 | Author name, ORCID and contact e-mail consistent | PASS | `CITATION.cff`, `.zenodo.json`, report header; `test_release.py` |
 | D2 | Institutional affiliation | PASS | "Faculdade de Media Artes e Design, Universidade Técnica do Porto" (Portaria n.º 332-A/2026/1, 11 August 2026) |
 | D3 | Version | PASS | 1.0.0 in `CITATION.cff`, `.zenodo.json`, report, release notes |
-| D4 | Release date | NOT YET DONE | Removed until the tag exists; set `date-released` in `CITATION.cff` on the tag day |
-| D5 | DOI | NOT YET DONE | None recorded or invented; added after the deposit |
+| D4 | Release date | NOT YET DONE | Recorded by the GitHub release and the Zenodo record; add `date-released` to `CITATION.cff` with the DOI (E5) |
+| D5 | DOI | NOT YET DONE | None recorded or invented; Zenodo mints it when it archives the GitHub release |
 | D6 | Citations and references | PASS | Report references updated (Costa et al. 2023; INE 0011495; Eurostat HICP manual and rent recommendations; INE rent-survey note) |
 | D7 | Reproducibility instructions | PASS | README "Reproducing the release", report Appendix A, `reproduce.py` docstring |
 
-## E. Release steps (nothing here is automated or done)
+## E. Release steps
 
 | # | Step | Status |
 |---|---|---|
-| E1 | Merge the readiness pull requests (#388 merged; the completions-source pull request open) | NOT YET DONE |
+| E1 | Merge the readiness pull requests (Medium-Blog #388 and #395; this repository #1) | PASS |
 | E2 | Clear A5 (replace or license the PORDATA file), rebuild `DATA_SOURCES.csv`, rerun `reproduce.py` | PASS |
-| E3 | Set the release date in `CITATION.cff` | NOT YET DONE |
-| E4 | Create the tag `portugal-housing-generations-v1.0.0` on the merge commit | NOT YET DONE |
-| E5 | Build the archive and its checksum | NOT YET DONE |
-| E6 | Zenodo deposit | NOT YET DONE |
-| E7 | DOI update | NOT YET DONE |
+| E3 | Make the repository public and enable it in Zenodo's GitHub settings | NOT YET DONE |
+| E4 | Run the `release` task on `main`: tag, GitHub release, Zenodo archive and DOI | NOT YET DONE |
+| E5 | Add the DOI and release date to `CITATION.cff`, the README and the report | NOT YET DONE |
 
-### Manual steps, in order
+No zip is built or uploaded by hand: Zenodo archives the GitHub release itself, with the metadata in
+`.zenodo.json`. `CITATION.cff` drives GitHub's "Cite this repository".
 
-1. **Tag (E4).** After E1–E3 are merged:
-   ```bash
-   git tag -a portugal-housing-generations-v1.0.0 -m "Portugal housing research release v1.0.0" <merge-sha>
-   git push origin portugal-housing-generations-v1.0.0
-   ```
-   The tag can also be created in the GitHub UI.
-2. **Archive and checksum (E5).** In GitHub Actions, run the `portugal-housing-generations` workflow on the tag
-   with task `release-archive`.
-   - The job reproduces the release and checks redistribution.
-   - It builds `portugal-housing-generations-v1.0.0.zip` with `git archive` and writes its SHA-256 to a
-     `.sha256` file.
-   - It uploads both as a workflow artifact.
+### Steps, in order
 
-   Download them and run `sha256sum --check portugal-housing-generations-v1.0.0.zip.sha256`.
-3. **Zenodo deposit (E6).** Create a new upload on Zenodo. Zenodo's GitHub integration, which would archive each
-   GitHub release automatically, works only with public repositories, so it is not available while this one is
-   private.
-   - Attach the zip.
-   - Enter the metadata from `.zenodo.json`: upload type publication/report, licence Apache-2.0 for code and
-     documentation, creator with ORCID and affiliation, keywords, and the related identifier for the tag.
-   - Paste the archive's SHA-256 in the notes.
-   - Reserve the DOI, review, then publish.
-4. **DOI update (E7).** In a follow-up pull request:
-   - add `doi:` to `CITATION.cff`;
-   - add the DOI to the README citation block and the report header;
-   - optionally create a GitHub release for the tag with `RELEASE_NOTES_v1.0.0.md`.
+1. **Public repository and Zenodo (E3).** Zenodo's GitHub integration works only with public repositories.
+   - In the repository settings, change the visibility to public.
+   - Sign in to Zenodo with GitHub, open <https://zenodo.org/account/settings/github/>, select *Sync now* if the
+     repository is not listed, and switch it on. Zenodo then archives every new GitHub release of the repository.
+2. **Release (E4).** In GitHub Actions, run the `portugal-housing-generations` workflow on `main` with task
+   `release`. It reproduces every result, checks that every data file may be redistributed, and creates the tag
+   `portugal-housing-generations-v1.0.0` and the GitHub release, with `RELEASE_NOTES_v1.0.0.md` as its text.
+   Zenodo archives the release within minutes and mints a DOI for the version and a concept DOI for all versions.
+3. **DOI (E5).** In a follow-up pull request:
+   - add `doi:` (the version DOI) and `date-released:` to `CITATION.cff`;
+   - add the DOI to the README citation block and the report header.
