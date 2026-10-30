@@ -58,9 +58,11 @@ The workflow `.github/workflows/portugal-housing-generations.yml` runs on every 
 Data are never downloaded while computing. The workflow's manual tasks (`mortgage-rates`, `regional`,
 `affordability`, `rental`, `national`) download dated snapshots with retrieval records. They are dispatched on a
 branch other than `main` and commit to that branch for review. After a reviewed refresh, run
-`python reproduce.py --write-manifest` to update the checksums. The manual `release` task, run on `main`,
-reproduces every result, stops while any data file's redistribution has not been established, and then creates
-the tag and the GitHub release that Zenodo archives (see `RELEASE_CHECKLIST_v1.0.0.md`).
+`python reproduce.py --write-manifest` to update the checksums. Two manual tasks, run on `main`, make a release
+(see `RELEASE_CHECKLIST_v1.0.0.md`). `package` reproduces every result, stops while any data file's
+redistribution has not been established, and builds the archive with its SHA-256 for review. `release` rebuilds
+it, checks it against the approved SHA-256, and creates the annotated tag and the GitHub release that Zenodo
+archives.
 
 Each Eurostat and INE snapshot is pinned to avoid silent changes when providers revise historical values. To
 refresh a source, replace the dated snapshot, update the file name and the script and test defaults, and

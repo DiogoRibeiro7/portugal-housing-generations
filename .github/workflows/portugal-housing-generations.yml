@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       task:
-        description: Which source to download (on a branch), or release to publish the version in CITATION.cff (on main)
+        description: Which source to download (on a branch); package or release the version in CITATION.cff (on main)
         type: choice
         options:
           - mortgage-rates
@@ -16,8 +16,13 @@ on:
           - affordability
           - rental
           - national
+          - package
           - release
         default: mortgage-rates
+      approved_sha256:
+        description: For release only, the SHA-256 of the artifact approved from a package run
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -66,12 +71,14 @@ jobs:
           python -m pip install matplotlib==3.11.2
           python reproduce.py
 
-  # Publishes a release: reproduces every result, checks that every data file may be redistributed, then creates
-  # the tag and the GitHub release for the version in CITATION.cff, with the release notes as its text. Zenodo's
-  # GitHub integration, once enabled for this repository (it must be public), archives the release and mints the
-  # DOI from .zenodo.json. Runs only on main.
-  release:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.task == 'release'
+  # package: reproduces every result, checks that every data file may be redistributed, and builds the release
+  # artifact (git archive of the commit), its SHA-256 and a per-file SHA-256 manifest as a workflow artifact for
+  # review. It publishes nothing.
+  # release: repeats the checks, rebuilds the same artifact, refuses to continue unless its SHA-256 equals the
+  # approved value, then creates the annotated tag and the GitHub release with the artifact and checksums attached.
+  # Zenodo's GitHub integration archives the release from .zenodo.json. Both run only on main.
+  package:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && (inputs.task == 'package' || inputs.task == 'release')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -90,14 +97,12 @@ jobs:
           python -m pip install matplotlib==3.11.2
           python reproduce.py
 
-      # Stops here while any data file's redistribution has not been established
-      # (see DATA_SOURCES.md), so no such file reaches a public release.
+      # Stops here while any data file's redistribution has not been established (see DATA_SOURCES.md).
       - name: Check that every data file may be redistributed
         run: python data_sources.py --check-redistribution
 
-      - name: Create the tag and the GitHub release
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Build the artifact, its SHA-256 and the per-file manifest
+        id: package
         run: |
           version=$(sed -n 's/^version: *//p' CITATION.cff)
           tag="portugal-housing-generations-v${version}"
@@ -105,9 +110,48 @@ jobs:
             echo "::error::${tag} already exists"
             exit 1
           fi
-          gh release create "${tag}" --target "${GITHUB_SHA}" \
-            --title "Portugal housing research release v${version}" \
-            --notes-file "RELEASE_NOTES_v${version}.md"
+          mkdir -p dist/extract
+          git archive --format=zip --prefix="${tag}/" -o "dist/${tag}.zip" "${GITHUB_SHA}"
+          (cd dist && sha256sum "${tag}.zip" > "${tag}.zip.sha256" && sha256sum --check "${tag}.zip.sha256")
+          unzip -q "dist/${tag}.zip" -d dist/extract
+          (cd "dist/extract/${tag}" && find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum) > "dist/${tag}.files.sha256"
+          rm -rf dist/extract
+          sha256=$(cut -d' ' -f1 "dist/${tag}.zip.sha256")
+          echo "::notice title=Artifact::${tag}.zip sha256 ${sha256} (commit ${GITHUB_SHA})"
+          { echo "tag=${tag}"; echo "version=${version}"; echo "sha256=${sha256}"; } >> "$GITHUB_OUTPUT"
+
+      - name: Upload the artifact for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.tag }}
+          path: dist/
+          if-no-files-found: error
+
+      - name: Check the approved SHA-256
+        if: inputs.task == 'release'
+        run: |
+          if [ "${{ inputs.approved_sha256 }}" != "${{ steps.package.outputs.sha256 }}" ]; then
+            echo "::error::built ${{ steps.package.outputs.sha256 }}, approved '${{ inputs.approved_sha256 }}'"
+            exit 1
+          fi
+
+      - name: Create the annotated tag
+        if: inputs.task == 'release'
+        run: |
+          git config user.name "Diogo Ribeiro"
+          git config user.email "diogo_dj@hotmail.com"
+          git tag -a "${{ steps.package.outputs.tag }}" -m "Portugal housing research release v${{ steps.package.outputs.version }}" "${GITHUB_SHA}"
+          git push origin "refs/tags/${{ steps.package.outputs.tag }}"
+
+      - name: Create the GitHub release with the artifact
+        if: inputs.task == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.package.outputs.tag }}" --verify-tag \
+            --title "Portugal housing research release v${{ steps.package.outputs.version }}" \
+            --notes-file "RELEASE_NOTES_v${{ steps.package.outputs.version }}.md" \
+            dist/*.zip dist/*.sha256
 
   # Refreshing the ECB series is a manual, reviewed step: dispatch this workflow
   # on a branch other than main; the job commits the dated raw response and its

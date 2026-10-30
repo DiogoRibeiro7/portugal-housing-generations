@@ -5,7 +5,7 @@
 Diogo Ribeiro · Faculdade de Media Artes e Design, Universidade Técnica do Porto · ORCID
 [0009-0001-2022-7072](https://orcid.org/0009-0001-2022-7072) · dfr@esmad.ipp.pt
 
-Research release **v1.0.0** · prepared 30 October 2026 · data snapshot of 29 October 2026
+Research release **v1.0.0** · prepared 30 October 2026 · data snapshots of 29–30 October 2026
 
 How to cite: see [`CITATION.cff`](CITATION.cff). Code and documentation: Apache License 2.0 (repository licence).
 Third-party data are not relicensed; they remain under their providers' terms (see [`DATA_SOURCES.md`](DATA_SOURCES.md)).

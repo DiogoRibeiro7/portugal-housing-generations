@@ -57,7 +57,7 @@ INE's published metadata does not explain the difference. The analysis keeps `00
 throughout and the national counterpart of the municipal data in the regional panel.
 
 **Consequence.** No pinned file has an unestablished status. `python data_sources.py --check-redistribution`
-passes, and the `release` task keeps the check, so a future file that is not cleared stops the release.
+passes, and the `package` and `release` tasks keep the check, so a future file that is not cleared stops the release.
 
 ## Figures quoted from publications (not data files)
 

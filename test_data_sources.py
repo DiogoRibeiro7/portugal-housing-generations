@@ -61,10 +61,12 @@ class InventoryTests(unittest.TestCase):
     @unittest.skipUnless(WORKFLOW.exists(), "workflow not present in this copy")
     def test_release_task_checks_redistribution_first(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
-        release_job = workflow.split("\n  release:\n", 1)[1]
-        check = release_job.index("python data_sources.py --check-redistribution")
-        self.assertLess(release_job.index("python reproduce.py"), check)
-        self.assertLess(check, release_job.index("gh release create"))
+        job = workflow.split("\n  package:\n", 1)[1]
+        check = job.index("python data_sources.py --check-redistribution")
+        self.assertLess(job.index("python reproduce.py"), check)
+        self.assertLess(check, job.index("git archive"))
+        self.assertLess(job.index("Check the approved SHA-256"), job.index("git tag -a"))
+        self.assertLess(job.index("git tag -a"), job.index("gh release create"))
 
     def test_documents_describe_the_sources_and_the_replaced_transcription(self) -> None:
         doc = (HERE / "DATA_SOURCES.md").read_text(encoding="utf-8")

@@ -7,13 +7,13 @@ First research release, prepared on 30 October 2026 from data snapshots of 29 Oc
 
 ## What the release contains
 
-- **Report.** [`REPORT.md`](REPORT.md) is a consolidated research report: research questions, institutional
+- **Report.** [`REPORT.md`](https://github.com/DiogoRibeiro7/portugal-housing-generations/blob/portugal-housing-generations-v1.0.0/REPORT.md) is a consolidated research report: research questions, institutional
   context, data, methods, results, statistical analysis, discussion, limitations, conclusions and references,
   with 14 figures.
 - **Data.** 56 pinned data files: 37 from INE, 18 from Eurostat and 1 from the ECB. There are also 8 retrieval
   records, and all 64 files carry SHA-256 checksums in
-  [`data/SHA256SUMS`](data/SHA256SUMS). [`DATA_SOURCES.md`](DATA_SOURCES.md) and
-  [`DATA_SOURCES.csv`](DATA_SOURCES.csv) give each file's provider, source, retrieval time, terms, attribution
+  [`data/SHA256SUMS`](https://github.com/DiogoRibeiro7/portugal-housing-generations/blob/portugal-housing-generations-v1.0.0/data/SHA256SUMS). [`DATA_SOURCES.md`](https://github.com/DiogoRibeiro7/portugal-housing-generations/blob/portugal-housing-generations-v1.0.0/DATA_SOURCES.md) and
+  [`DATA_SOURCES.csv`](https://github.com/DiogoRibeiro7/portugal-housing-generations/blob/portugal-housing-generations-v1.0.0/DATA_SOURCES.csv) give each file's provider, source, retrieval time, terms, attribution
   and redistribution status.
 - **Code.** Five standard-library Python pipelines (national, regional, affordability, rental, integrated) and
   their helper modules, plus six figure scripts producing 21 figures.
@@ -26,10 +26,10 @@ First research release, prepared on 30 October 2026 from data snapshots of 29 Oc
   - data-inventory and licensing checks;
   - wording guards for the two statements corrected after an independent review.
 - **Reproduction.** `python reproduce.py`.
-- **Review log.** [`REVIEW.md`](REVIEW.md).
-- **Metadata.** [`CITATION.cff`](CITATION.cff) and [`.zenodo.json`](.zenodo.json). Zenodo's GitHub integration archives the
+- **Review log.** [`REVIEW.md`](https://github.com/DiogoRibeiro7/portugal-housing-generations/blob/portugal-housing-generations-v1.0.0/REVIEW.md).
+- **Metadata.** [`CITATION.cff`](https://github.com/DiogoRibeiro7/portugal-housing-generations/blob/portugal-housing-generations-v1.0.0/CITATION.cff) and [`.zenodo.json`](https://github.com/DiogoRibeiro7/portugal-housing-generations/blob/portugal-housing-generations-v1.0.0/.zenodo.json). Zenodo's GitHub integration archives the
   GitHub release from these files and mints the DOI, which is then added to `CITATION.cff`.
-- **Release checklist.** [`RELEASE_CHECKLIST_v1.0.0.md`](RELEASE_CHECKLIST_v1.0.0.md).
+- **Release checklist.** [`RELEASE_CHECKLIST_v1.0.0.md`](https://github.com/DiogoRibeiro7/portugal-housing-generations/blob/portugal-housing-generations-v1.0.0/RELEASE_CHECKLIST_v1.0.0.md).
 
 ## Licences
 
@@ -65,7 +65,7 @@ Each finding is assigned to an evidence layer in the report.
 
 ## Changes in this release
 
-Relative to the merged stages (#354, #368, #371, #374, #376):
+Relative to the merged stages (Medium-Blog pull requests #354, #368, #371, #374 and #376):
 
 **Added:**
 - the research report;
@@ -100,8 +100,9 @@ uses them. No verdict changed.
 - tests on Python 3.10 and 3.13;
 - data checksum verification;
 - the report figure;
-- a manual `release` task that reproduces the release, checks every data file's status and creates the tag and
-  GitHub release that Zenodo archives.
+- manual `package` and `release` tasks: the first reproduces the release, checks every data file's status and
+  builds the archive with its SHA-256 for review; the second checks the approved SHA-256 and creates the annotated
+  tag and the GitHub release that Zenodo archives.
 
 **Release-readiness review (30 October 2026):**
 - *Data licensing.* Added a file-by-file inventory with provider terms checked on the providers' own pages. The
@@ -143,5 +144,5 @@ These are listed in full in report Section 9:
 
 ## Before publishing
 
-See [`RELEASE_CHECKLIST_v1.0.0.md`](RELEASE_CHECKLIST_v1.0.0.md) for the status of every check and the steps
+See [`RELEASE_CHECKLIST_v1.0.0.md`](https://github.com/DiogoRibeiro7/portugal-housing-generations/blob/portugal-housing-generations-v1.0.0/RELEASE_CHECKLIST_v1.0.0.md) for the status of every check and the steps
 for the release: make the repository public, enable it on Zenodo, run the `release` task, then add the DOI.
