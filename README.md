@@ -1,17 +1,49 @@
 # Portugal's housing market, 2008–2025: a reproducible descriptive assessment
 
-**Research release v1.0.0.** This repository holds pinned official data, standard-library Python code, tests,
-figures and a research report on house prices, incomes, construction, population and rents in Portugal.
+[![CI](https://github.com/DiogoRibeiro7/portugal-housing-generations/actions/workflows/portugal-housing-generations.yml/badge.svg)](https://github.com/DiogoRibeiro7/portugal-housing-generations/actions/workflows/portugal-housing-generations.yml)
+[![Licence: Apache-2.0](https://img.shields.io/badge/licence-Apache--2.0-blue.svg)](LICENSE)
 
-- **Report:** [`REPORT.md`](REPORT.md) is the consolidated research report: questions, institutional context,
-  data, methods, results, statistical analysis, discussion, limitations and references.
-- **Review log:** [`REVIEW.md`](REVIEW.md) records the scientific and technical review of this release.
-- **Release notes:** [`RELEASE_NOTES_v1.0.0.md`](RELEASE_NOTES_v1.0.0.md).
+**Research release v1.0.0.** Pinned official data, a standard-library Python package, tests, figures, a research
+report and an article on house prices, incomes, construction, population and rents in Portugal.
+
+- **Report:** [`docs/report.md`](docs/report.md), the consolidated research report: questions, institutional
+  context, data, methods, results, statistical analysis, discussion, limitations and references.
+- **Article:** [`article/article.md`](article/article.md), the long-form Medium article based on the release.
+- **Data sources:** [`docs/data-sources.md`](docs/data-sources.md), every pinned file with its provider, terms and
+  attribution.
+- **Review log:** [`docs/review.md`](docs/review.md), the scientific and technical review of this release.
+- **Release:** [`docs/release/notes-v1.0.0.md`](docs/release/notes-v1.0.0.md) and the release checklist
+  [`docs/release/checklist-v1.0.0.md`](docs/release/checklist-v1.0.0.md).
 
 The work began as a descriptive check of statistics quoted in José Jordão's 28 October 2026 article,
 **Habitação, Reforma ou Revolução**. It does not establish that housing conditions cause any voting pattern or
 political instability, and none of its associations is causal. The sections below document every source,
 definition, check and result in detail.
+
+## Repository layout
+
+```text
+.
+├── src/housing_pt/          Python package (standard library only)
+│   ├── national.py          national series: prices, incomes, housing conditions, construction, financing
+│   ├── regional.py          regional supply panel, NUTS 2024
+│   ├── affordability.py     regional purchase affordability
+│   ├── rental.py            rents, tenure and housing-cost burden
+│   ├── integrated.py        integrated municipal assessment
+│   ├── core/                parsers, geography, indices, decompositions, panel estimators (OLS, CR1, wild bootstrap)
+│   ├── sources/             downloaders for the manual workflow tasks, and the data inventory
+│   ├── figures/             figure scripts and the shared figure style (need matplotlib)
+│   └── paths.py             repository locations used by every pipeline
+├── data/                    64 pinned source files with retrieval records, and SHA256SUMS
+├── results/                 generated results and panels, committed and checked in CI
+├── figures/                 the 21 figures
+├── docs/                    report, review log, data sources and release documents
+├── article/                 the Medium article
+├── tests/                   unit, snapshot, pinned-result, wording and report-claim tests
+├── reproduce.py             one-command reproduction
+├── pyproject.toml           package metadata and tool settings
+└── CITATION.cff, .zenodo.json, LICENSE
+```
 
 ## Reproducing the release
 
@@ -25,27 +57,31 @@ python reproduce.py                                    # data checksums, tests, 
 pip install matplotlib==3.11.2 && python reproduce.py  # also redraws the figures
 ```
 
-`reproduce.py` prints `REPRODUCED` when:
+`reproduce.py` needs no installation. It prints `REPRODUCED` when:
 1. every file in `data/` matches [`data/SHA256SUMS`](data/SHA256SUMS);
-2. the unit tests pass;
-3. the five analysis scripts rebuild their outputs byte for byte.
+2. the tests pass;
+3. the five analysis pipelines and the data inventory rebuild their outputs byte for byte.
 
 Figures are redrawn too. A figure whose PNG bytes differ is decoded and compared pixel by pixel: a difference
 in compression alone (Pillow builds use different zlib levels) is counted but not flagged, and a pixel
-difference is reported as a warning only, because text rendering can differ between systems. Individual steps:
+difference is reported as a warning only, because text rendering can differ between systems.
+
+To run single steps, install the package in editable mode (`pip install -e ".[figures]"`), or put `src/` on the
+module path (`PYTHONPATH=src`; in PowerShell, `$env:PYTHONPATH = "src"`):
 
 | Step | Command | Writes |
 |---|---|---|
-| National series | `python analysis.py` | `results.json` |
-| Regional population and construction | `python regional.py` | `results_regional.json`, `regional_panel.csv` |
-| Regional purchase affordability | `python affordability.py` | `results_affordability.json`, `affordability_panel.csv` |
-| Rental market | `python rental.py` | `results_rental.json`, `rental_panel.csv` |
-| Integrated assessment | `python integrated.py` | `results_integrated.json`, `integrated_panel.csv`, `data_audit.csv` |
-| Figures | `python regional_figures.py`, `affordability_figures.py`, `rental_figures.py`, `integrated_figures.py`, `report_figures.py`, `article_figures.py` | `figures/*.png` |
-| Tests | `python -m unittest discover -p 'test_*.py'` | — |
+| National series | `python -m housing_pt.national` | `results/results.json` |
+| Regional population and construction | `python -m housing_pt.regional` | `results/results_regional.json`, `results/regional_panel.csv` |
+| Regional purchase affordability | `python -m housing_pt.affordability` | `results/results_affordability.json`, `results/affordability_panel.csv` |
+| Rental market | `python -m housing_pt.rental` | `results/results_rental.json`, `results/rental_panel.csv` |
+| Integrated assessment | `python -m housing_pt.integrated` | `results/results_integrated.json`, `results/integrated_panel.csv`, `results/data_audit.csv` |
+| Data inventory | `python -m housing_pt.sources.data_sources` | `docs/data-sources.csv` |
+| Figures | `python -m housing_pt.figures.<name>` for `regional`, `affordability`, `rental`, `integrated`, `report`, `article` | `figures/*.png` |
+| Tests | `python -m unittest discover -s tests -t .` | — |
 
-`test_report.py` recomputes the numbers quoted in `REPORT.md` from the result files, so the report cannot drift
-from the code.
+`tests/test_report.py` recomputes the numbers quoted in `docs/report.md` from the result files, so the report
+cannot drift from the code.
 
 ### Continuous integration and data refreshes
 
@@ -59,7 +95,7 @@ Data are never downloaded while computing. The workflow's manual tasks (`mortgag
 `affordability`, `rental`, `national`) download dated snapshots with retrieval records. They are dispatched on a
 branch other than `main` and commit to that branch for review. After a reviewed refresh, run
 `python reproduce.py --write-manifest` to update the checksums. Two manual tasks, run on `main`, make a release
-(see `RELEASE_CHECKLIST_v1.0.0.md`). `package` reproduces every result, stops while any data file's
+(see `docs/release/checklist-v1.0.0.md`). `package` reproduces every result, stops while any data file's
 redistribution has not been established, and builds the archive with its SHA-256 for review. `release` rebuilds
 it, checks it against the approved SHA-256, and creates the annotated tag and the GitHub release that Zenodo
 archives.
@@ -67,24 +103,6 @@ archives.
 Each Eurostat and INE snapshot is pinned to avoid silent changes when providers revise historical values. To
 refresh a source, replace the dated snapshot, update the file name and the script and test defaults, and
 review the change.
-
-## Repository map
-
-| Path | Contents |
-|---|---|
-| `data/` | 64 pinned source files (INE `.jsonl.gz` containers, Eurostat and ECB JSON with `.meta.json` retrieval records) and `SHA256SUMS` |
-| `analysis.py`, `regional.py`, `affordability.py`, `rental.py`, `integrated.py` | Analysis pipelines (one per release stage) |
-| `regional_core.py`, `affordability_core.py`, `rental_core.py`, `panel_stats.py` | Parsers, geography, index and decomposition helpers, and the panel estimators (OLS, CR1, wild cluster bootstrap) |
-| `fetch_*.py` | Downloaders used only by the manual workflow jobs |
-| `results*.json`, `*_panel.csv`, `data_audit.csv` | Generated results, committed and checked in CI |
-| `*_figures.py`, `figures/` | Figure scripts and the 21 figures (two drawn for the Medium article) |
-| `test_*.py` | Unit, snapshot, pinned-result and report-claim tests |
-| `reproduce.py` | One-command reproduction |
-| `REPORT.md`, `REVIEW.md`, `RELEASE_NOTES_v1.0.0.md` | Report, review log, release notes |
-| `article.md` | Medium article based on the release |
-| `CITATION.cff`, `.zenodo.json` | Citation and archive metadata |
-| `DATA_SOURCES.md`, `DATA_SOURCES.csv`, `data_sources.py` | Data inventory, provider terms and redistribution status |
-| `RELEASE_CHECKLIST_v1.0.0.md` | Release-readiness checklist and manual release steps |
 
 ## Citing and licences
 
@@ -98,14 +116,14 @@ No DOI exists yet. Zenodo mints one when it archives the GitHub release; it will
 - **Code and documentation** (scripts, tests, reports, figures and generated results) are covered by the
   repository's Apache License 2.0.
 - **Third-party data** in `data/` are **not** relicensed under Apache-2.0. Each file keeps its provider's terms,
-  and redistribution follows those terms. [`DATA_SOURCES.md`](DATA_SOURCES.md) gives the terms as checked on
-  2026-10-30, and [`DATA_SOURCES.csv`](DATA_SOURCES.csv) gives the provider, source, retrieval time, attribution
+  and redistribution follows those terms. [`docs/data-sources.md`](docs/data-sources.md) gives the terms as checked on
+  2026-10-30, and [`docs/data-sources.csv`](docs/data-sources.csv) gives the provider, source, retrieval time, attribution
   and status of every file:
   - INE: CC BY 4.0; cite "Fonte: Instituto Nacional de Estatística, IP – Portugal".
   - Eurostat: reuse authorised with acknowledgement of the source and the dataset DOI.
   - European Central Bank: free reuse with the source quoted, without modification.
   - No file is pending clearance. The national completions series for 1995–2025, earlier transcribed from
-    PORDATA, now comes from INE's API (indicator 0000076; see `DATA_SOURCES.md`).
+    PORDATA, now comes from INE's API (indicator 0000076; see `docs/data-sources.md`).
 
 ## Sources and definitions
 
@@ -170,19 +188,19 @@ No DOI exists yet. Zenodo mints one when it archives the GitHub release; it will
     thousands (`unit=THS`):
     https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_cobp_a?geo=PT&indic_bt=BPRM_DW&cpa2_1=CPA_F41001_X_410014&s_adj=NSA&unit=THS
     Accessed 2026-10-29. The snapshot contains Eurostat preliminary (`p`)
-    flags for 2022–2025; these are preserved in `results.json`.
+    flags for 2022–2025; these are preserved in `results/results.json`.
 11. INE, *Estatísticas das obras concluídas*, indicator 0000076, *Fogos
     concluídos (N.º) em construções novas para habitação familiar por Localização
     geográfica (NUTS - 2002) e Tipologia do fogo; Anual*, Portugal, all typologies,
     1995–2025: https://www.ine.pt/xurl/indx/0000076/PT
     Fetched for Portugal from INE's JSON API on 2026-10-30 by
-    `fetch_regional.py --set national` on a GitHub Actions runner, and pinned
+    `housing_pt.sources.fetch_regional --set national` on a GitHub Actions runner, and pinned
     unmodified with its retrieval record. INE's note marks 2021 onwards as
     preliminary and 2024–2025 as based on its completed-works estimates; these
-    years are flagged in `results.json`. The values are identical to the PORDATA
+    years are flagged in `results/results.json`. The values are identical to the PORDATA
     republication transcribed for earlier versions. INE's national long series
     (indicator 0011725, 1975–2025) is pinned as a cross-check; it is 2–37% higher
-    in every year, for reasons INE's metadata does not state (`DATA_SOURCES.md`).
+    in every year, for reasons INE's metadata does not state (`docs/data-sources.md`).
 12. Eurostat `lfst_hhnhtych`: total private households in Portugal,
     `phhcomp=TOTAL`, `agechild=TOTAL`, `n_child=TOTAL`, `unit=THS_HH`:
     https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/lfst_hhnhtych?geo=PT&unit=THS_HH&agechild=TOTAL&n_child=TOTAL&phhcomp=TOTAL
@@ -199,12 +217,12 @@ No DOI exists yet. Zenodo mints one when it archives the GitHub release; it will
     house purchase*, Portugal, monthly, percent per annum (`UNIT=PCPA`), source
     agency code `PT2` (Banco de Portugal), January 2003 to August 2026:
     https://data-api.ecb.europa.eu/service/data/MIR/M.PT.B.A2C.AM.R.A.2250.EUR.N?format=csvdata
-    Retrieved 2026-10-29T14:49:43Z by `fetch_mortgage_rates.py` on a GitHub
+    Retrieved 2026-10-29T14:49:43Z by `housing_pt.sources.fetch_mortgage_rates` on a GitHub
     Actions runner (response `Last-Modified: Thu, 01 Oct 2026 08:00:00 GMT`).
     The raw SDMX-CSV is stored byte for byte, with its original CRLF line
     endings (`.gitattributes` marks it `-text`). Next to it,
     `*.meta.json` records the URL, retrieval time, HTTP status, headers and
-    SHA-256; `analysis.py` refuses to run if the file no longer matches.
+    SHA-256; `housing_pt.national` refuses to run if the file no longer matches.
     Definition, from the response's `TITLE_COMPL`: annualised agreed rate
     (AAR) / narrowly defined effective rate (NDER) on *new business* lending to
     households and NPISH for house purchase, in euro, by monetary financial
@@ -243,7 +261,7 @@ The European Union Statistics on Income and Living Conditions income reference
 period and the index's calendar year may differ; nominal index comparisons are
 descriptive and should not be construed as an exact affordability measure.
 
-`results.json` also records this index separately for the Eurostat 18–24 and
+`results/results.json` also records this index separately for the Eurostat 18–24 and
 25–49 income groups, with each age group's own 2015 baseline. These index
 levels should **not** be used to compare absolute affordability across ages:
 the normalization erases their initial income levels, while housing needs,
@@ -399,7 +417,7 @@ What it is **not**:
 
 ## Regional panel: population and new dwellings by NUTS 2024 region, 2011–2025
 
-`regional.py` builds a region-year panel for the 26 NUTS 3 and 9 NUTS 2 regions of
+`housing_pt.regional` builds a region-year panel for the 26 NUTS 3 and 9 NUTS 2 regions of
 the NUTS 2024 classification, the union Grande Lisboa + Península de Setúbal
 (code `AML`, identical to the former Área Metropolitana de Lisboa) and Portugal.
 Lisbon is reported as Grande Lisboa (`1A0`), Península de Setúbal (`1B0`) and
@@ -408,11 +426,11 @@ their union; Porto as Área Metropolitana do Porto (`11A`).
 ### Sources
 
 All from INE's indicator API, downloaded on 2026-10-29 between 17:38 and 17:47
-UTC by `fetch_regional.py` on a GitHub Actions runner (the `fetch-regional` job,
+UTC by `housing_pt.sources.fetch_regional` on a GitHub Actions runner (the `fetch-regional` job,
 dispatched on a branch; this workspace cannot reach INE). Each file
 `data/ine_<code>_2026-10-29.jsonl.gz` holds INE's metadata response and its data
 responses byte for byte, each with URL, retrieval time, HTTP status, size and
-SHA-256; `regional.py` re-checks every digest before reading. Metadata pages:
+SHA-256; `housing_pt.regional` re-checks every digest before reading. Metadata pages:
 `https://www.ine.pt/bddXplorer/htdocs/minfo.jsp?var_cd=<code>&lingua=PT`.
 
 - `0012917` Resident population, annual estimates, NUTS 2024, 2021–2025, persons,
@@ -439,7 +457,7 @@ so households enter the panel only in the census years 2011 and 2021.
 Every NUTS version is a grouping of the same 308 municipalities, identified by
 their four-digit DICO code. The panel uses INE's NUTS 2024 hierarchy (parents are
 read from INE's category order); series published on another version are
-regrouped through municipalities. Checks, all in `results_regional.json`:
+regrouped through municipalities. Checks, all in `results/results_regional.json`:
 
 - Each source's municipal values sum exactly to its own published regional and
   national totals (zero mismatches in every source).
@@ -457,7 +475,7 @@ regrouped through municipalities. Checks, all in `results_regional.json`:
 
 ### Panel, coverage and flags
 
-`regional_panel.csv` has one row per region and year, 2011–2025: population,
+`results/regional_panel.csv` has one row per region and year, 2011–2025: population,
 completed and permitted dwellings, census households (2011, 2021 only), both
 dwellings per 1,000 residents, and a `flags` column. A region-year with any member
 municipality missing is left empty, never partially summed; in this snapshot no
@@ -474,7 +492,7 @@ INE's estimates are census-based; from 2021 they are administrative-based. INE's
 INE's series exceeds Eurostat's (1 January of the following year) by 1.7% in 2021,
 3.9% in 2022, 5.3% in 2023 and 5.9% in 2024. Growth is therefore reported
 separately for 2011–2020 and 2021–2025; the 2011–2025 figure in
-`results_regional.json` crosses the break and is labelled so. Rates per 1,000
+`results/results_regional.json` crosses the break and is labelled so. Rates per 1,000
 residents from 2021 use the higher administrative-based population.
 
 ### What the panel shows
@@ -536,15 +554,15 @@ and `fig_regional_growth_and_construction.png`.
 
 ## Regional affordability: transaction prices and declared income, 2019–2024
 
-`affordability.py` builds a region-year panel of house prices and incomes for
+`housing_pt.affordability` builds a region-year panel of house prices and incomes for
 Portugal, the 9 NUTS 2 and 26 NUTS 3 regions of NUTS 2024 and the 308
-municipalities, and compares their growth. It writes `results_affordability.json`
-and `affordability_panel.csv`; `affordability_figures.py` draws the figures.
+municipalities, and compares their growth. It writes `results/results_affordability.json`
+and `results/affordability_panel.csv`; `housing_pt.figures.affordability` draws the figures.
 
 ### Sources
 
 From INE's indicator API, downloaded on 2026-10-29 between 19:22 and 19:38 UTC by
-`fetch_regional.py --set affordability` on a GitHub Actions runner. They are stored
+`housing_pt.sources.fetch_regional --set affordability` on a GitHub Actions runner. They are stored
 and checked like the regional panel's sources: one container per indicator, every
 response with its SHA-256. INE's last updates were 2026-10-23 (prices), 2026-07-24
 (income) and 2026-04-11 (appraisals). The 2018-method table was last updated in
@@ -616,7 +634,7 @@ Península de Setúbal (`1B0`), with Porto as Área Metropolitana do Porto (`11A
 
 ### Checks
 
-All recorded in `results_affordability.json`; the build stops if any fails.
+All recorded in `results/results_affordability.json`; the build stops if any fails.
 
 - The price and the three NUTS 2024 income tables assign the 308 municipalities to
   the same 26 NUTS 3 and 9 NUTS 2 regions. The five NUTS 2 regions made of a single
@@ -755,9 +773,9 @@ and `fig_affordability_definitions.png`.
 
 ## Rental market: rents, tenure and housing-cost burden
 
-`rental.py` sets three rent measures side by side, plus tenure and housing-cost
-burden. It writes `results_rental.json` and `rental_panel.csv`;
-`rental_figures.py` draws the figures. Nothing is spliced across measures,
+`housing_pt.rental` sets three rent measures side by side, plus tenure and housing-cost
+burden. It writes `results/results_rental.json` and `results/rental_panel.csv`;
+`housing_pt.figures.rental` draws the figures. Nothing is spliced across measures,
 methods or geographies, and nothing here identifies a cause. Immigration,
 tourism, investment demand and regulation are not tested.
 
@@ -777,14 +795,14 @@ The HICP is a price index with no rent level. In Portugal it comes from INE's
 monthly rent survey, a panel of rented dwellings stratified by region, rent class
 and contract date. It follows dwellings, not households, so a re-let dwelling's new
 rent enters it. It cannot describe the rents or rent burden of a fixed group of
-sitting tenants (see `REPORT.md`, Section 6.4).
+sitting tenants (see `docs/report.md`, Section 6.4).
 
 ### Sources
 
-All series were downloaded on 2026-10-29 by `fetch_regional.py --set rental` on
+All series were downloaded on 2026-10-29 by `housing_pt.sources.fetch_regional --set rental` on
 a GitHub Actions runner: Eurostat at 21:04 UTC, INE between 21:13 and 22:06 UTC.
 Every INE response is stored with its SHA-256, and every Eurostat body with a
-`.meta.json` retrieval record. `rental.py` checks all of them before reading.
+`.meta.json` retrieval record. `housing_pt.rental` checks all of them before reading.
 
 - **INE, new leases** (latest update 2026-09-29):
   - `0014698` median rent per m², 2026 method, NUTS 2024, 2020–2025;
@@ -990,16 +1008,16 @@ Figures:
 
 ## Integrated assessment: prices, income, construction, population and rents
 
-`integrated.py` joins the series pinned by the earlier analyses into one
+`housing_pt.integrated` joins the series pinned by the earlier analyses into one
 municipality-year panel and asks how house prices relate to income, construction,
 population and rents. It downloads nothing. It writes:
-- `data_audit.csv`, the audit of every variable;
-- `integrated_panel.csv`, 308 municipalities × 2011–2025, NUTS 2024 geography,
+- `results/data_audit.csv`, the audit of every variable;
+- `results/integrated_panel.csv`, 308 municipalities × 2011–2025, NUTS 2024 geography,
   municipalities matched by DICO code;
-- `results_integrated.json`, every estimate, interval and diagnostic.
+- `results/results_integrated.json`, every estimate, interval and diagnostic.
 
-`integrated_figures.py` draws the figures. The estimators are in
-`panel_stats.py`, written in the standard library so every step can be checked.
+`housing_pt.figures.integrated` draws the figures. The estimators are in
+`housing_pt.core.panel_stats`, written in the standard library so every step can be checked.
 The run is deterministic: the bootstrap seeds are fixed, and CI rebuilds the
 outputs and compares them.
 
@@ -1169,7 +1187,7 @@ These are within-municipality estimates.
   Reverse causality, prices of new dwellings, offsetting effects on existing
   dwellings and the different samples remain possible. Counts of new and
   existing sales, a joint model on a common sample, or transaction microdata
-  would be needed (see `REPORT.md`, Section 7.2). The result must not be read as
+  would be needed (see `docs/report.md`, Section 7.2). The result must not be read as
   "construction raises prices" or the reverse.
 
 **Population: consistent in sign, fragile.**

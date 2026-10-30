@@ -27,6 +27,10 @@ on:
 permissions:
   contents: read
 
+# The package lives in src/ and needs no installation: every step finds it on the module path.
+env:
+  PYTHONPATH: src
+
 jobs:
   test:
     if: github.event_name != 'workflow_dispatch'
@@ -49,19 +53,17 @@ jobs:
         run: sha256sum --check --strict --quiet SHA256SUMS
 
       - name: Run the tests
-        run: python -m unittest discover -p 'test_*.py' -v
+        run: python -m unittest discover -s tests -t . -v
 
       - name: Rebuild the results from the pinned snapshots and compare
         run: |
-          python analysis.py > /dev/null
-          python regional.py > /dev/null
-          python affordability.py > /dev/null
-          python rental.py > /dev/null
-          python integrated.py > /dev/null
-          python data_sources.py > /dev/null
-          git diff --exit-code -- results.json results_regional.json regional_panel.csv \
-            results_affordability.json affordability_panel.csv results_rental.json rental_panel.csv \
-            results_integrated.json integrated_panel.csv data_audit.csv DATA_SOURCES.csv
+          python -m housing_pt.national > /dev/null
+          python -m housing_pt.regional > /dev/null
+          python -m housing_pt.affordability > /dev/null
+          python -m housing_pt.rental > /dev/null
+          python -m housing_pt.integrated > /dev/null
+          python -m housing_pt.sources.data_sources > /dev/null
+          git diff --exit-code -- results docs/data-sources.csv
 
       # Redraws every figure and reports, as a warning, any PNG whose bytes or pixels
       # differ from the committed one; it fails only if a script fails.
@@ -97,9 +99,9 @@ jobs:
           python -m pip install matplotlib==3.11.2
           python reproduce.py
 
-      # Stops here while any data file's redistribution has not been established (see DATA_SOURCES.md).
+      # Stops here while any data file's redistribution has not been established (see docs/data-sources.md).
       - name: Check that every data file may be redistributed
-        run: python data_sources.py --check-redistribution
+        run: python -m housing_pt.sources.data_sources --check-redistribution
 
       - name: Build the artifact, its SHA-256 and the per-file manifest
         id: package
@@ -150,13 +152,13 @@ jobs:
         run: |
           gh release create "${{ steps.package.outputs.tag }}" --verify-tag \
             --title "Portugal housing research release v${{ steps.package.outputs.version }}" \
-            --notes-file "RELEASE_NOTES_v${{ steps.package.outputs.version }}.md" \
+            --notes-file "docs/release/notes-v${{ steps.package.outputs.version }}.md" \
             dist/*.zip dist/*.sha256
 
   # Refreshing the ECB series is a manual, reviewed step: dispatch this workflow
   # on a branch other than main; the job commits the dated raw response and its
   # retrieval record to that branch, and the change is reviewed in a pull request.
-  # The defaults in analysis.py then have to be pointed at the new files.
+  # The defaults in src/housing_pt/national.py then have to be pointed at the new files.
   fetch-mortgage-rates:
     if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && inputs.task == 'mortgage-rates'
     runs-on: ubuntu-latest
@@ -175,7 +177,7 @@ jobs:
           python-version: '3.13'
 
       - name: Download the ECB cost-of-borrowing series
-        run: python fetch_mortgage_rates.py --out data
+        run: python -m housing_pt.sources.fetch_mortgage_rates --out data
 
       - name: Commit the raw snapshot and its retrieval record
         run: |
@@ -207,7 +209,7 @@ jobs:
           python-version: '3.13'
 
       - name: Download the INE series
-        run: python fetch_regional.py --out data --set ${{ inputs.task }}
+        run: python -m housing_pt.sources.fetch_regional --out data --set ${{ inputs.task }}
 
       - name: Commit the outputs
         if: always()

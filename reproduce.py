@@ -4,15 +4,17 @@ Steps (standard library only; matplotlib only for step 4):
 
 1. check every file in ``data/`` against ``data/SHA256SUMS``;
 2. run the unit tests;
-3. re-run the five analysis scripts and the data inventory, and check that each
-   output file is byte-identical to the one shipped with the release;
+3. re-run the five analysis pipelines and the data inventory (the ``housing_pt``
+   package in ``src/``), and check that each output file in ``results/`` and
+   ``docs/data-sources.csv`` is byte-identical to the one shipped with the release;
 4. redraw the figures if matplotlib is installed, decode any figure whose bytes
    changed, and warn if its pixels changed too. A figure that differs only in
    PNG encoding (a different compression level or zlib build) is counted but not
    flagged; a pixel difference without any change in the data comes from a
    different matplotlib, FreeType or font build. Neither fails the run.
 
-Works from a plain copy of the repository, such as the release archive (no git needed).
+Works from a plain copy of the repository, such as the release archive: no git and no installation
+needed (``src/`` is put on the module path of every step).
 
 Run:  python reproduce.py                    # exits 0 if everything reproduces
       python reproduce.py --write-manifest   # maintainers: rewrite data/SHA256SUMS
@@ -31,16 +33,19 @@ from pathlib import Path
 HERE = Path(__file__).parent
 DATA = HERE / "data"
 MANIFEST = DATA / "SHA256SUMS"
+SRC = HERE / "src"
+# Pipeline module -> the files it writes (relative to the repository root).
 ANALYSES = {
-    "analysis.py": ["results.json"],
-    "regional.py": ["results_regional.json", "regional_panel.csv"],
-    "affordability.py": ["results_affordability.json", "affordability_panel.csv"],
-    "rental.py": ["results_rental.json", "rental_panel.csv"],
-    "integrated.py": ["results_integrated.json", "integrated_panel.csv", "data_audit.csv"],
-    "data_sources.py": ["DATA_SOURCES.csv"],
+    "housing_pt.national": ["results/results.json"],
+    "housing_pt.regional": ["results/results_regional.json", "results/regional_panel.csv"],
+    "housing_pt.affordability": ["results/results_affordability.json", "results/affordability_panel.csv"],
+    "housing_pt.rental": ["results/results_rental.json", "results/rental_panel.csv"],
+    "housing_pt.integrated": ["results/results_integrated.json", "results/integrated_panel.csv",
+                              "results/data_audit.csv"],
+    "housing_pt.sources.data_sources": ["docs/data-sources.csv"],
 }
-FIGURE_SCRIPTS = ["regional_figures.py", "affordability_figures.py", "rental_figures.py", "integrated_figures.py",
-                  "report_figures.py", "article_figures.py"]
+FIGURE_MODULES = ["housing_pt.figures.regional", "housing_pt.figures.affordability", "housing_pt.figures.rental",
+                  "housing_pt.figures.integrated", "housing_pt.figures.report", "housing_pt.figures.article"]
 
 
 def sha256(path: Path) -> str:
@@ -98,11 +103,13 @@ def pixel_difference(old_png: bytes, new_png: bytes) -> str:
 
 
 def run(cmd: list[str], quiet: bool = False) -> int:
-    """Run a command in this directory; with ``quiet``, show its output only if it fails."""
+    """Run a command from the repository root with ``src/`` on the module path; with ``quiet``, show its output
+    only if it fails."""
     print("$", " ".join(cmd), flush=True)
+    env = {**os.environ, "PYTHONPATH": os.pathsep.join(filter(None, [str(SRC), os.environ.get("PYTHONPATH")]))}
     if not quiet:
-        return subprocess.run(cmd, cwd=HERE, check=False).returncode
-    done = subprocess.run(cmd, cwd=HERE, check=False, capture_output=True, text=True)
+        return subprocess.run(cmd, cwd=HERE, env=env, check=False).returncode
+    done = subprocess.run(cmd, cwd=HERE, env=env, check=False, capture_output=True, text=True)
     if done.returncode != 0:
         print(done.stdout[-4000:], done.stderr[-4000:], sep="\n", file=sys.stderr)
     return done.returncode
@@ -122,15 +129,15 @@ def main() -> int:
     print("1. data manifest:", "OK" if not problems else "; ".join(problems))
     failures += bool(problems)
 
-    code = run([sys.executable, "-m", "unittest", "discover", "-p", "test_*.py"], quiet=True)
+    code = run([sys.executable, "-m", "unittest", "discover", "-s", "tests", "-t", "."], quiet=True)
     print("2. unit tests:", "OK" if code == 0 else "FAILED")
     failures += code != 0
 
     changed = []
-    for script, outputs in ANALYSES.items():
+    for module, outputs in ANALYSES.items():
         before = {o: sha256(HERE / o) for o in outputs if (HERE / o).exists()}
-        if run([sys.executable, script], quiet=True) != 0:
-            changed.append(f"{script} failed")
+        if run([sys.executable, "-m", module], quiet=True) != 0:
+            changed.append(f"{module} failed")
             continue
         changed += [o for o in outputs if before.get(o) != sha256(HERE / o)]
     print("3. analysis outputs:", "all byte-identical" if not changed else "CHANGED: " + ", ".join(changed))
@@ -141,8 +148,8 @@ def main() -> int:
     else:
         figures = sorted((HERE / "figures").glob("*.png"))
         before_png = {f.name: f.read_bytes() for f in figures}
-        for script in FIGURE_SCRIPTS:
-            if run([sys.executable, script], quiet=True) != 0:
+        for module in FIGURE_MODULES:
+            if run([sys.executable, "-m", module], quiet=True) != 0:
                 failures += 1
         after = sorted((HERE / "figures").glob("*.png"))
         diff = {f.name: pixel_difference(before_png[f.name], f.read_bytes()) if f.name in before_png else "new file"

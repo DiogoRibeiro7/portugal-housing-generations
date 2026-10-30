@@ -9,8 +9,10 @@ __pycache__/
 .venv/
 venv/
 
-# Release archive built by the release-archive task
+# Build output and the release archive built by the package task
+build/
 dist/
+*.egg-info/
 
 # Operating-system metadata
 .DS_Store
