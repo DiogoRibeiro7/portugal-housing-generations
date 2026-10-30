@@ -68,6 +68,28 @@ class InventoryTests(unittest.TestCase):
         self.assertLess(job.index("Check the approved SHA-256"), job.index("git tag -a"))
         self.assertLess(job.index("git tag -a"), job.index("gh release create"))
 
+    @unittest.skipUnless(WORKFLOW.exists(), "workflow not present in this copy")
+    def test_workflow_inputs_never_reach_the_shell_as_code(self) -> None:
+        workflow = WORKFLOW.read_text(encoding="utf-8")
+        script_lines, block_indent = [], None
+        for line in workflow.splitlines():
+            indent = len(line) - len(line.lstrip())
+            if block_indent is not None and line.strip() and indent <= block_indent:
+                block_indent = None
+            if block_indent is not None:
+                script_lines.append(line)
+            match = re.match(r"^(\s*)run:\s*(.*)$", line)
+            if match:
+                if match.group(2).strip() in ("|", ">"):
+                    block_indent = len(match.group(1))
+                else:
+                    script_lines.append(match.group(2))
+        self.assertGreater(len(script_lines), 20)
+        for line in script_lines:
+            with self.subTest(line=line.strip()):
+                self.assertNotRegex(line, r"\$\{\{\s*(inputs|steps)\.")
+        self.assertIn('[[ "${APPROVED_SHA256}" =~ ^[0-9a-f]{64}$ ]]', workflow)
+
     def test_documents_describe_the_sources_and_the_replaced_transcription(self) -> None:
         doc = (DOCS / "data-sources.md").read_text(encoding="utf-8")
         for snippet in ("INE replaces the PORDATA transcription", "https://www.ine.pt/xurl/indx/0000076/PT",
